@@ -648,6 +648,7 @@ async function loadStudentData(name) {
   currentStudent = normalizeName(name);
   const status = document.getElementById('nameEntryStatus');
   if (status) status.textContent = 'Loading your progress...';
+  if (typeof resetExtraStateLocal === 'function') resetExtraStateLocal();
   try {
     await migrateIfNeeded(currentStudent);
     await loadProgress();
@@ -5428,6 +5429,7 @@ function loadAutoSpeak() {
 function toggleAutoSpeak(cb) {
   autoSpeak = cb.checked;
   try { localStorage.setItem('cogat-vocab-autospeak', String(autoSpeak)); } catch(e) {}
+  try { if (typeof persistAll === 'function') persistAll(); } catch(e) {}
 }
 
 function stopSpeaking() {
@@ -5610,6 +5612,51 @@ function loadProgressLocal() {
   } catch(e) { masteredSet = new Set(); }
 }
 
+// ---- Full activity-state bundling (streaks, sessions, trouble words, etc.) ----
+function gatherExtraState() {
+  const safeParse = (key, fallback) => {
+    try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch(e) { return fallback; }
+  };
+  return {
+    activityLog: safeParse('cogat-activity-log', {}),
+    sessionsLog: safeParse('cogat-sessions-log', { quiz: [], practice: [] }),
+    weakWords: safeParse('cogat-weak-words', {}),
+    finalScore: (function() { try { return localStorage.getItem('cogat-final-score') || '0'; } catch(e) { return '0'; } })(),
+    autoSpeak: (function() { try { return localStorage.getItem('cogat-vocab-autospeak') || 'false'; } catch(e) { return 'false'; } })(),
+    celebrated: (function() { try { return localStorage.getItem('cogat-celebrated') || ''; } catch(e) { return ''; } })()
+  };
+}
+
+// Clears all per-device "leftover" state so a new student never inherits
+// a previous student's streak, session history, or "already did today's
+// tasks" flags. Call this BEFORE loading the new student's real data.
+function resetExtraStateLocal() {
+  try {
+    localStorage.setItem('cogat-activity-log', '{}');
+    localStorage.setItem('cogat-sessions-log', JSON.stringify({ quiz: [], practice: [] }));
+    localStorage.setItem('cogat-weak-words', '{}');
+    localStorage.setItem('cogat-final-score', '0');
+    localStorage.setItem('cogat-celebrated', '');
+    const t = (typeof todayKey === 'function') ? todayKey() : '';
+    localStorage.removeItem('cogat-flash-today-' + t);
+    localStorage.removeItem('cogat-trouble-viewed-' + t);
+    localStorage.removeItem('cogat-roots-viewed-' + t);
+  } catch(e) { console.warn('Could not reset local extra state', e); }
+}
+
+function applyExtraState(extra) {
+  const e2 = extra || {};
+  try {
+    localStorage.setItem('cogat-activity-log', JSON.stringify(e2.activityLog || {}));
+    localStorage.setItem('cogat-sessions-log', JSON.stringify(e2.sessionsLog || { quiz: [], practice: [] }));
+    localStorage.setItem('cogat-weak-words', JSON.stringify(e2.weakWords || {}));
+    localStorage.setItem('cogat-final-score', e2.finalScore || '0');
+    if (e2.autoSpeak) localStorage.setItem('cogat-vocab-autospeak', e2.autoSpeak);
+    localStorage.setItem('cogat-celebrated', e2.celebrated || '');
+  } catch(e) { console.warn('Could not apply extra state locally', e); }
+}
+
 async function loadProgress() {
   if (!currentStudent) { loadProgressLocal(); return; }
   try {
@@ -5619,6 +5666,7 @@ async function loadProgress() {
     const arr = (data.masteredWords || []).map(k => k.replace(/^t[23]:/, 'w:'));
     masteredSet = new Set(arr);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ mastered: Array.from(masteredSet) })); } catch(e) {}
+    applyExtraState(data.extraData);
   } catch(e) {
     console.warn('Could not reach server, loading local progress instead', e);
     loadProgressLocal();
@@ -5633,10 +5681,17 @@ async function saveProgress() {
     await fetch(API_BASE + '/progress/' + encodeURIComponent(currentStudent), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ masteredWords: Array.from(masteredSet), currentLevel: 'A' })
+      body: JSON.stringify({
+        masteredWords: Array.from(masteredSet),
+        currentLevel: 'A',
+        extraData: gatherExtraState()
+      })
     });
   } catch(e) { console.warn('Save to server failed, progress saved locally only', e); }
 }
+
+// persistAll is just a clear name for "sync everything now" — same as saveProgress
+async function persistAll() { return saveProgress(); }
 function resetProgress() {
   masteredSet = new Set();
   saveProgress();
@@ -6169,7 +6224,13 @@ function renderDegrees() {
 }
 
 // =============== INIT ===============
-window.addEventListener('beforeunload', stopSpeaking);
+window.addEventListener('beforeunload', function() {
+  stopSpeaking();
+  try { if (typeof persistAll === 'function') persistAll(); } catch(e) {}
+});
+setInterval(function() {
+  try { if (typeof persistAll === 'function') persistAll(); } catch(e) {}
+}, 30000); // sync every 30 seconds while the app is open, as a safety net
 initNameGate();
 </script>
 
@@ -6644,6 +6705,7 @@ function logQuizSession(mode, score, total, isFinal) {
     console.log('[CogAT] Quiz logged:', mode, score + '/' + total);
     // If Today view is visible, refresh it
     try { if (document.getElementById('view-today') && document.getElementById('view-today').classList.contains('active') && typeof renderToday === 'function') renderToday(); } catch(e) {}
+    try { if (typeof persistAll === 'function') persistAll(); } catch(e) {}
   } catch(e) { console.error('[CogAT] Quiz log failed:', e); }
 }
 function logPracticeSession(mode, score, total) {
@@ -6656,6 +6718,7 @@ function logPracticeSession(mode, score, total) {
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(log));
     console.log('[CogAT] Practice logged:', mode, score + '/' + total);
     try { if (document.getElementById('view-today') && document.getElementById('view-today').classList.contains('active') && typeof renderToday === 'function') renderToday(); } catch(e) {}
+    try { if (typeof persistAll === 'function') persistAll(); } catch(e) {}
   } catch(e) { console.error('[CogAT] Practice log failed:', e); }
 }
 

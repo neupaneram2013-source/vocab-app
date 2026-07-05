@@ -691,25 +691,25 @@ function switchProfile() {
 }
 
 // =============== TEACHER / PARENT VIEW ===============
-// NOTE: this access code lives in plain JavaScript and is visible to
-// anyone who views the page source. It's a light deterrent for family
-// or small-classroom use, not real security. Change it to whatever you
-// like below.
-const TEACHER_ACCESS_CODE = 'letmein';
+// The access code is checked on the SERVER now (see ProgressController's
+// /api/students endpoint). Nothing secret lives in this file — the
+// browser just forwards whatever the user typed and the server decides.
 
 async function openTeacherView() {
   const entered = prompt('Enter teacher/parent access code:');
   if (entered === null) return;
-  if (entered !== TEACHER_ACCESS_CODE) {
-    alert('Incorrect code.');
-    return;
-  }
   const overlay = document.getElementById('teacherViewOverlay');
   const body = document.getElementById('teacherViewBody');
   if (overlay) overlay.style.display = 'flex';
   if (body) body.innerHTML = '<div style="text-align:center;">Loading student list...</div>';
   try {
-    const res = await fetch(API_BASE + '/students');
+    const res = await fetch(API_BASE + '/students', {
+      headers: { 'X-Teacher-Code': entered }
+    });
+    if (res.status === 401) {
+      if (body) body.innerHTML = '<div style="text-align:center;color:var(--red);">Incorrect access code.</div>';
+      return;
+    }
     if (!res.ok) throw new Error('bad response');
     const students = await res.json();
     renderTeacherTable(students);

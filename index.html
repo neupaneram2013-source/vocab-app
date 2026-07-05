@@ -322,6 +322,21 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
       <button type="submit" class="close-btn" style="width:100%;" onclick="submitNameEntry()">Start Practicing →</button>
     </form>
     <div id="nameEntryStatus" style="margin-top:10px;font-size:13px;color:#6b7ba0;"></div>
+    <div style="margin-top:16px;font-size:13px;">
+      <a href="#" onclick="openTeacherView();return false;" style="color:var(--teal-dark);text-decoration:underline;">👩‍🏫 Teacher / Parent View</a>
+    </div>
+  </div>
+</div>
+
+<div class="celebration-overlay" id="teacherViewOverlay" style="display:none;z-index:10001;">
+  <div class="celebration" style="max-width:900px;text-align:left;">
+    <h1 style="font-size:22px;text-align:center;">👩‍🏫 Teacher / Parent View</h1>
+    <div id="teacherViewBody" style="margin-top:16px;font-size:14px;">
+      <div style="text-align:center;">Loading student list...</div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="close-btn" onclick="closeTeacherView()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -673,6 +688,106 @@ async function migrateIfNeeded(name) {
 function switchProfile() {
   try { localStorage.removeItem('cogat_last_name'); } catch(e) {}
   location.reload();
+}
+
+// =============== TEACHER / PARENT VIEW ===============
+// NOTE: this access code lives in plain JavaScript and is visible to
+// anyone who views the page source. It's a light deterrent for family
+// or small-classroom use, not real security. Change it to whatever you
+// like below.
+const TEACHER_ACCESS_CODE = 'letmein';
+
+async function openTeacherView() {
+  const entered = prompt('Enter teacher/parent access code:');
+  if (entered === null) return;
+  if (entered !== TEACHER_ACCESS_CODE) {
+    alert('Incorrect code.');
+    return;
+  }
+  const overlay = document.getElementById('teacherViewOverlay');
+  const body = document.getElementById('teacherViewBody');
+  if (overlay) overlay.style.display = 'flex';
+  if (body) body.innerHTML = '<div style="text-align:center;">Loading student list...</div>';
+  try {
+    const res = await fetch(API_BASE + '/students');
+    if (!res.ok) throw new Error('bad response');
+    const students = await res.json();
+    renderTeacherTable(students);
+  } catch(e) {
+    if (body) body.innerHTML = '<div style="text-align:center;color:var(--red);">Could not load student list. Make sure the backend is reachable (it may be waking up from sleep — try again in a minute).</div>';
+  }
+}
+
+function closeTeacherView() {
+  const overlay = document.getElementById('teacherViewOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function computeStreakFromActivityLog(activityLog) {
+  if (!activityLog || Object.keys(activityLog).length === 0) return 0;
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+    const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    if (activityLog[k]) { streak++; }
+    else if (i === 0) { continue; }
+    else { break; }
+  }
+  return streak;
+}
+
+function renderTeacherTable(students) {
+  const body = document.getElementById('teacherViewBody');
+  if (!body) return;
+  if (!students || students.length === 0) {
+    body.innerHTML = '<div style="text-align:center;">No students found yet. Once someone types their name and starts practicing, they will appear here.</div>';
+    return;
+  }
+  const levels = ['A','B','C','D','E','F','G'];
+  let html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;">';
+  html += '<thead><tr style="background:var(--cream);text-align:left;">' +
+    '<th style="padding:8px;">Student</th>' +
+    levels.map(L => '<th style="padding:8px;text-align:center;">' + L + '</th>').join('') +
+    '<th style="padding:8px;text-align:center;">Overall</th>' +
+    '<th style="padding:8px;text-align:center;">Streak</th>' +
+    '<th style="padding:8px;">Last Active</th>' +
+    '</tr></thead><tbody>';
+
+  students.forEach(s => {
+    const mastered = new Set((s.masteredWords || []));
+    let totalMastered = 0, totalWords = 0;
+    const perLevel = {};
+    levels.forEach(L => {
+      const words = (typeof WORDS !== 'undefined') ? WORDS.filter(w => w.level === L) : [];
+      const count = words.filter(w => mastered.has('w:' + w.word)).length;
+      perLevel[L] = { count: count, total: words.length };
+      totalMastered += count;
+      totalWords += words.length;
+    });
+    const overallPct = totalWords > 0 ? Math.round(totalMastered / totalWords * 100) : 0;
+    const extra = s.extraData || {};
+    const streak = computeStreakFromActivityLog(extra.activityLog);
+    const lastActive = s.lastUpdated ? new Date(s.lastUpdated).toLocaleString() : '—';
+    const rawName = s.studentName || '—';
+    const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+    html += '<tr style="border-bottom:1px solid var(--rule);">' +
+      '<td style="padding:8px;font-weight:600;">' + displayName + '</td>' +
+      levels.map(function(L) {
+        const pl = perLevel[L];
+        const full = pl.total > 0 && pl.count === pl.total;
+        return '<td style="padding:8px;text-align:center;">' + (full ? '⭐' : (pl.count + '/' + pl.total)) + '</td>';
+      }).join('') +
+      '<td style="padding:8px;text-align:center;font-weight:600;">' + overallPct + '%</td>' +
+      '<td style="padding:8px;text-align:center;">' + (streak > 0 ? ('🔥 ' + streak) : '—') + '</td>' +
+      '<td style="padding:8px;font-size:12px;color:#6b7ba0;">' + lastActive + '</td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<div style="margin-top:14px;font-size:12px;opacity:0.7;text-align:center;">Showing ' + students.length + ' student' + (students.length === 1 ? '' : 's') + '.</div>';
+  body.innerHTML = html;
 }
 
 // =============== VOCABULARY DATA ===============

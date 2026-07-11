@@ -11504,7 +11504,7 @@ function teacherAccuracyChart(acc) {
 
 /* ==================== SIDEBAR NAV GROUPS ==================== */
 .nav-group { margin-bottom: 8px; }
-.nav-group-header, .nav-group-toggle {
+.nav-group-header {
   display: block;
   width: 100%;
   text-align: left;
@@ -11520,15 +11520,38 @@ function teacherAccuracyChart(acc) {
   font-family: 'DM Sans', sans-serif;
 }
 .nav-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  margin: 10px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--teal-dark);
+  background: rgba(45, 110, 107, 0.06);
+  border: 1px solid rgba(45, 110, 107, 0.12);
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s, border-color 0.15s;
 }
-.nav-group-toggle:hover { color: var(--teal-dark); }
+.nav-group-toggle:hover {
+  background: rgba(45, 110, 107, 0.12);
+  border-color: rgba(45, 110, 107, 0.25);
+}
 .nav-group-toggle .chevron {
   display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--teal);
   transition: transform 0.2s;
-  margin-right: 2px;
-  color: #a89a80;
+  flex-shrink: 0;
 }
 .nav-group-toggle.collapsed .chevron { transform: rotate(-90deg); }
 .nav-group-header.today {

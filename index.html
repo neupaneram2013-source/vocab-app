@@ -10643,16 +10643,27 @@ async function selectProfile(id, name) {
   // Try backend load; on failure fall back to localStorage
   document.getElementById('ppStatus').textContent = 'Loading ' + name + "'s progress...";
   try {
-    // First-time migration: if this browser has localStorage data and hasn't migrated yet, push it up
+    // Load state FIRST so we know if backend already has data
+    const state = await apiGet('/api/students/' + id + '/state');
+
+    // SAFE MIGRATION: only push localStorage → backend if:
+    // 1. This browser hasn't migrated for this profile yet
+    // 2. Backend is EMPTY for this student (nothing to overwrite)
+    // 3. This browser has real mastery data locally
+    // This prevents accidental wipes when signing in on a browser with stale data.
     const migrationKey = 'cogat-migrated-to-backend-' + id;
-    if (!localStorage.getItem(migrationKey) && hasLocalStorageData()) {
+    const backendMastered = (state.mastered || []).length;
+    if (!localStorage.getItem(migrationKey) && backendMastered === 0 && hasLocalStorageData()) {
       document.getElementById('ppStatus').textContent = 'Uploading your progress from this browser...';
       await apiPost('/api/students/' + id + '/migrate', collectLocalStorageDump());
-      localStorage.setItem(migrationKey, '1');
+      // Re-fetch state after migration
+      const fresh = await apiGet('/api/students/' + id + '/state');
+      applyRemoteState(fresh);
+    } else {
+      applyRemoteState(state);
     }
-    // Load state
-    const state = await apiGet('/api/students/' + id + '/state');
-    applyRemoteState(state);
+    // Always mark this browser as migrated for this profile — prevents future spurious migrations
+    localStorage.setItem(migrationKey, '1');
     OFFLINE_MODE = false;
     setOfflineIndicator(false);
   } catch (e) {

@@ -11892,20 +11892,18 @@ function teacherAccuracyChart(acc) {
     <div id="ppStatus" style="padding:10px 24px;font-size:12px;color:#7a6f5a;"></div>
 
     <!-- SIGN-IN FORM -->
-    <div id="ppSigninForm" style="padding:8px 24px 24px;">
+    <form id="ppSigninForm" onsubmit="event.preventDefault(); signinProfile();" style="padding:8px 24px 24px;">
       <label style="font-size:11px;font-weight:600;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;">First name</label>
       <input id="ppFirstNameInput" type="text" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 12px;">
       <label style="font-size:11px;font-weight:600;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;">Last name</label>
       <input id="ppLastNameInput" type="text" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 12px;">
       <label style="font-size:11px;font-weight:600;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;">PIN (4-6 digits)</label>
-      <input id="ppPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();signinProfile();}" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 6px;letter-spacing:4px;text-align:center;">
-      <button onclick="signinProfile()" style="...">Sign in &rarr;</button>
       <input id="ppPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 6px;letter-spacing:4px;text-align:center;">
       <div id="ppSigninError" style="color:#c0392b;font-size:12px;font-weight:600;margin-bottom:8px;display:none;"></div>
-      <button onclick="signinProfile()" style="width:100%;background:var(--teal);color:#fff;border:none;padding:14px;border-radius:10px;cursor:pointer;font-weight:700;font-size:15px;margin-top:6px;">Sign in &rarr;</button>
-      <button onclick="showCreateForm()" style="width:100%;background:none;border:none;color:var(--teal-dark);padding:12px 0 4px;cursor:pointer;font-size:13px;text-decoration:underline;">New here? Create a profile</button>
-      <button onclick="showForgotPin()" style="width:100%;background:none;border:none;color:#a89a80;padding:4px 0;cursor:pointer;font-size:12px;text-decoration:underline;">Forgot PIN?</button>
-    </div>
+      <button type="submit" style="width:100%;background:var(--teal);color:#fff;border:none;padding:14px;border-radius:10px;cursor:pointer;font-weight:700;font-size:15px;margin-top:6px;">Sign in &rarr;</button>
+      <button type="button" onclick="showCreateForm()" style="width:100%;background:none;border:none;color:var(--teal-dark);padding:12px 0 4px;cursor:pointer;font-size:13px;text-decoration:underline;">New here? Create a profile</button>
+      <button type="button" onclick="showForgotPin()" style="width:100%;background:none;border:none;color:#a89a80;padding:4px 0;cursor:pointer;font-size:12px;text-decoration:underline;">Forgot PIN?</button>
+    </form>
 
     <!-- CREATE PROFILE FORM -->
     <div id="ppCreateForm" style="display:none;padding:8px 24px 24px;">

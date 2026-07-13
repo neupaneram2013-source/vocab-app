@@ -10912,7 +10912,7 @@ function applyRemoteState(state) {
     if (state.srs && typeof srsData !== 'undefined') {
       Object.keys(srsData).forEach(k => delete srsData[k]);
       Object.assign(srsData, state.srs);
-      localStorage.setItem(SRS_KEY, JSON.stringify(srsData));
+      localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(srsData));
     }
     if (state.weak) {
       localStorage.setItem(WEAK_KEY, JSON.stringify(state.weak));
@@ -10938,7 +10938,7 @@ function applyRemoteState(state) {
     if (state.placements) {
       localStorage.setItem('cogat-placement-tests', JSON.stringify(state.placements));
     }
-	/ Refresh sidebar UI now that masteredSet / stages / srs have been rehydrated —
+	// Refresh sidebar UI now that masteredSet / stages / srs have been rehydrated —
     // without this, Mastered stats and Star Trophy stay stale after restore/sign-in.
     if (typeof updateStats === 'function') updateStats();
     if (typeof updateStarTrophy === 'function') updateStarTrophy();
@@ -11898,6 +11898,8 @@ function teacherAccuracyChart(acc) {
       <label style="font-size:11px;font-weight:600;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;">Last name</label>
       <input id="ppLastNameInput" type="text" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 12px;">
       <label style="font-size:11px;font-weight:600;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;">PIN (4-6 digits)</label>
+      <input id="ppPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();signinProfile();}" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 6px;letter-spacing:4px;text-align:center;">
+      <button onclick="signinProfile()" style="...">Sign in &rarr;</button>
       <input id="ppPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:8px;font-size:15px;font-family:inherit;box-sizing:border-box;margin:6px 0 6px;letter-spacing:4px;text-align:center;">
       <div id="ppSigninError" style="color:#c0392b;font-size:12px;font-weight:600;margin-bottom:8px;display:none;"></div>
       <button onclick="signinProfile()" style="width:100%;background:var(--teal);color:#fff;border:none;padding:14px;border-radius:10px;cursor:pointer;font-weight:700;font-size:15px;margin-top:6px;">Sign in &rarr;</button>

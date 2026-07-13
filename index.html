@@ -7861,6 +7861,7 @@ function markMastered(word) {
     masteredSet.add(key);
     localStorage.setItem(key, '1');
     if (typeof updateStats === 'function') updateStats();
+    if (typeof updateStarTrophy === 'function') updateStarTrophy(); // ← ADD
     if (typeof renderWords === 'function' && currentView === 'browse') renderWords();
   } catch(e) {}
 }
@@ -9915,6 +9916,8 @@ function dsMasterNewWord() {
   if (typeof autoQueueSRS === 'function') autoQueueSRS(item.word);
   if (typeof logMasteryDate === 'function') logMasteryDate('w:' + item.word);
   saveProgress();
+if (typeof updateStats === 'function') updateStats();
+  if (typeof updateStarTrophy === 'function') updateStarTrophy();
   s.stats.mastered++;
   s.stats.correct++;
   s.stats.itemsSeen++;
@@ -10053,8 +10056,8 @@ function closeSession() {
   document.getElementById('dailySessionOverlay').style.display = 'none';
   if (typeof renderToday === 'function') renderToday();
   if (typeof updateStats === 'function') updateStats();
+  if (typeof updateStarTrophy === 'function') updateStarTrophy();   // ← ADD THIS LINE
 }
-
 // ==================== VISUAL EFFECTS ====================
 function spawnConfetti() {
   const container = document.createElement('div');

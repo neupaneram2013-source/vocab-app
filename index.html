@@ -5772,21 +5772,78 @@ function toggleMastery(key) {
 // Hook Browse Words / Relationships / Word Roots "Mastered" toggle so it also
 // writes stage data AND syncs to backend. Without this, mastering from those
 // views updates masteredSet locally but never pushes → cross-device wipe.
-(function hookToggleMasterySync() {
-  if (typeof toggleMastery !== 'function') return;
-  const orig = toggleMastery;
-  window.toggleMastery = function(key) {
+// Word Roots view
+(function hookRootStudyMasterySync() {
+  if (typeof rootStudyToggleMastered !== 'function') return;
+  const orig = rootStudyToggleMastered;
+  window.rootStudyToggleMastered = function() {
+    const w = rootStudyState && rootStudyState.words[rootStudyState.wordIdx];
+    if (!w) return orig.apply(this, arguments);
+    const key = 'w:' + w.word;
     const wasMastered = masteredSet.has(key);
     const result = orig.apply(this, arguments);
     if (!CURRENT_STUDENT_ID) return result;
-    if (!wasMastered && masteredSet.has(key)) {
-      // Just marked as mastered — write stage 3 entry and sync
+    const isMastered = masteredSet.has(key);
+    if (!wasMastered && isMastered) {
       const today = new Date().toISOString().slice(0, 10);
       masteryStages[key] = { stage: 3, lastAdvanced: today };
       try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
       syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
         wordKey: key, stage: 3, lastAdvanced: today
       });
+    } else if (wasMastered && !isMastered) {
+      delete masteryStages[key];
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
+    }
+    return result;
+  };
+})();
+
+// Lesson "Got it!" button (add-only, no unmaster path)
+(function hookMarkMasteredSync() {
+  if (typeof markMastered !== 'function') return;
+  const orig = markMastered;
+  window.markMastered = function(word) {
+    const key = 'w:' + word;
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    if (!wasMastered && masteredSet.has(key)) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    }
+    return result;
+  };
+})();
+
+// Custom Lists view
+(function hookListStudyMasterySync() {
+  if (typeof listStudyToggleMastered !== 'function') return;
+  const orig = listStudyToggleMastered;
+  window.listStudyToggleMastered = function() {
+    const w = listStudyState && listStudyState.words[listStudyState.idx];
+    if (!w) return orig.apply(this, arguments);
+    const key = 'w:' + w.word;
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    const isMastered = masteredSet.has(key);
+    if (!wasMastered && isMastered) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    } else if (wasMastered && !isMastered) {
+      delete masteryStages[key];
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
     }
     return result;
   };
@@ -10515,6 +10572,19 @@ function syncToBackend(path, body) {
   });
 }
 
+// Fire-and-forget DELETE for backend sync (mirror of syncToBackend for removals)
+function syncDeleteToBackend(path) {
+  if (!CURRENT_STUDENT_ID || OFFLINE_MODE) return;
+  apiDelete(path).catch(err => {
+    // 404 is fine — row already gone. Only queue real failures.
+    if (err.message === 'HTTP 404') return;
+    console.warn('Delete sync failed, queueing:', path, err.message);
+    PENDING_SYNCS.push({ path, method: 'DELETE', ts: Date.now() });
+    setOfflineIndicator(true);
+    scheduleRetry();
+  });
+}
+
 let retryTimer = null;
 function scheduleRetry() {
   if (retryTimer) return;
@@ -10527,7 +10597,10 @@ async function flushPendingSyncs() {
   PENDING_SYNCS = [];
   let anyFailed = false;
   for (const item of queue) {
-    try { await apiPost(item.path, item.body); }
+    try {
+      if (item.method === 'DELETE') await apiDelete(item.path);
+      else await apiPost(item.path, item.body);
+    }
     catch (e) { PENDING_SYNCS.push(item); anyFailed = true; }
   }
   setOfflineIndicator(anyFailed);

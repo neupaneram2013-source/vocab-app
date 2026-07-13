@@ -5769,6 +5769,28 @@ function toggleMastery(key) {
   }
 }
 
+// Hook Browse Words / Relationships / Word Roots "Mastered" toggle so it also
+// writes stage data AND syncs to backend. Without this, mastering from those
+// views updates masteredSet locally but never pushes → cross-device wipe.
+(function hookToggleMasterySync() {
+  if (typeof toggleMastery !== 'function') return;
+  const orig = toggleMastery;
+  window.toggleMastery = function(key) {
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    if (!wasMastered && masteredSet.has(key)) {
+      // Just marked as mastered — write stage 3 entry and sync
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    }
+    return result;
+  };
+})();
 // =============== FLASHCARDS ===============
 function rebuildFlashList() {
   let pool = [];

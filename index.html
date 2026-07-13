@@ -10938,6 +10938,11 @@ function applyRemoteState(state) {
     if (state.placements) {
       localStorage.setItem('cogat-placement-tests', JSON.stringify(state.placements));
     }
+	/ Refresh sidebar UI now that masteredSet / stages / srs have been rehydrated —
+    // without this, Mastered stats and Star Trophy stay stale after restore/sign-in.
+    if (typeof updateStats === 'function') updateStats();
+    if (typeof updateStarTrophy === 'function') updateStarTrophy();
+    if (typeof renderToday === 'function') renderToday();
   } catch (e) {
     console.error('State hydration error:', e);
   }

@@ -5769,85 +5769,6 @@ function toggleMastery(key) {
   }
 }
 
-// Hook Browse Words / Relationships / Word Roots "Mastered" toggle so it also
-// writes stage data AND syncs to backend. Without this, mastering from those
-// views updates masteredSet locally but never pushes → cross-device wipe.
-// Word Roots view
-(function hookRootStudyMasterySync() {
-  if (typeof rootStudyToggleMastered !== 'function') return;
-  const orig = rootStudyToggleMastered;
-  window.rootStudyToggleMastered = function() {
-    const w = rootStudyState && rootStudyState.words[rootStudyState.wordIdx];
-    if (!w) return orig.apply(this, arguments);
-    const key = 'w:' + w.word;
-    const wasMastered = masteredSet.has(key);
-    const result = orig.apply(this, arguments);
-    if (!CURRENT_STUDENT_ID) return result;
-    const isMastered = masteredSet.has(key);
-    if (!wasMastered && isMastered) {
-      const today = new Date().toISOString().slice(0, 10);
-      masteryStages[key] = { stage: 3, lastAdvanced: today };
-      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
-      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
-        wordKey: key, stage: 3, lastAdvanced: today
-      });
-    } else if (wasMastered && !isMastered) {
-      delete masteryStages[key];
-      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
-      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
-    }
-    return result;
-  };
-})();
-
-// Lesson "Got it!" button (add-only, no unmaster path)
-(function hookMarkMasteredSync() {
-  if (typeof markMastered !== 'function') return;
-  const orig = markMastered;
-  window.markMastered = function(word) {
-    const key = 'w:' + word;
-    const wasMastered = masteredSet.has(key);
-    const result = orig.apply(this, arguments);
-    if (!CURRENT_STUDENT_ID) return result;
-    if (!wasMastered && masteredSet.has(key)) {
-      const today = new Date().toISOString().slice(0, 10);
-      masteryStages[key] = { stage: 3, lastAdvanced: today };
-      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
-      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
-        wordKey: key, stage: 3, lastAdvanced: today
-      });
-    }
-    return result;
-  };
-})();
-
-// Custom Lists view
-(function hookListStudyMasterySync() {
-  if (typeof listStudyToggleMastered !== 'function') return;
-  const orig = listStudyToggleMastered;
-  window.listStudyToggleMastered = function() {
-    const w = listStudyState && listStudyState.words[listStudyState.idx];
-    if (!w) return orig.apply(this, arguments);
-    const key = 'w:' + w.word;
-    const wasMastered = masteredSet.has(key);
-    const result = orig.apply(this, arguments);
-    if (!CURRENT_STUDENT_ID) return result;
-    const isMastered = masteredSet.has(key);
-    if (!wasMastered && isMastered) {
-      const today = new Date().toISOString().slice(0, 10);
-      masteryStages[key] = { stage: 3, lastAdvanced: today };
-      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
-      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
-        wordKey: key, stage: 3, lastAdvanced: today
-      });
-    } else if (wasMastered && !isMastered) {
-      delete masteryStages[key];
-      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
-      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
-    }
-    return result;
-  };
-})();
 // =============== FLASHCARDS ===============
 function rebuildFlashList() {
   let pool = [];
@@ -11070,6 +10991,107 @@ function loadFromLocalStorage() {
           lastAdvanced: entry.lastAdvanced
         });
       }
+    }
+    return result;
+  };
+})();
+// Browse Words / Relationships "Mastered" toggle
+(function hookToggleMasterySync() {
+  if (typeof toggleMastery !== 'function') return;
+  const orig = toggleMastery;
+  window.toggleMastery = function(key) {
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    const isMastered = masteredSet.has(key);
+    if (!wasMastered && isMastered) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    } else if (wasMastered && !isMastered) {
+      delete masteryStages[key];
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
+    }
+    return result;
+  };
+})();
+
+// Word Roots view
+(function hookRootStudyMasterySync() {
+  if (typeof rootStudyToggleMastered !== 'function') return;
+  const orig = rootStudyToggleMastered;
+  window.rootStudyToggleMastered = function() {
+    const w = rootStudyState && rootStudyState.words[rootStudyState.wordIdx];
+    if (!w) return orig.apply(this, arguments);
+    const key = 'w:' + w.word;
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    const isMastered = masteredSet.has(key);
+    if (!wasMastered && isMastered) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    } else if (wasMastered && !isMastered) {
+      delete masteryStages[key];
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
+    }
+    return result;
+  };
+})();
+
+// Lesson "Got it!" button (add-only, no unmaster path)
+(function hookMarkMasteredSync() {
+  if (typeof markMastered !== 'function') return;
+  const orig = markMastered;
+  window.markMastered = function(word) {
+    const key = 'w:' + word;
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    if (!wasMastered && masteredSet.has(key)) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    }
+    return result;
+  };
+})();
+
+// Custom Lists view
+(function hookListStudyMasterySync() {
+  if (typeof listStudyToggleMastered !== 'function') return;
+  const orig = listStudyToggleMastered;
+  window.listStudyToggleMastered = function() {
+    const w = listStudyState && listStudyState.words[listStudyState.idx];
+    if (!w) return orig.apply(this, arguments);
+    const key = 'w:' + w.word;
+    const wasMastered = masteredSet.has(key);
+    const result = orig.apply(this, arguments);
+    if (!CURRENT_STUDENT_ID) return result;
+    const isMastered = masteredSet.has(key);
+    if (!wasMastered && isMastered) {
+      const today = new Date().toISOString().slice(0, 10);
+      masteryStages[key] = { stage: 3, lastAdvanced: today };
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery', {
+        wordKey: key, stage: 3, lastAdvanced: today
+      });
+    } else if (wasMastered && !isMastered) {
+      delete masteryStages[key];
+      try { localStorage.setItem(STAGE_STORAGE_KEY, JSON.stringify(masteryStages)); } catch(e) {}
+      syncDeleteToBackend('/api/students/' + CURRENT_STUDENT_ID + '/mastery/' + encodeURIComponent(key));
     }
     return result;
   };

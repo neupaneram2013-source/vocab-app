@@ -318,7 +318,15 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 <div class="layout">
 
 <aside class="sidebar">
-  <div class="sidebar-header">CogAT Vocabulary</div>
+  <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <span>CogAT Vocabulary</span>
+    <button id="headerSignOutBtn" onclick="headerSignOut()" title="Sign out"
+      style="display:none;background:none;border:1px solid var(--rule);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--teal-dark);cursor:pointer;font-family:inherit;line-height:1;transition:all 0.15s;"
+      onmouseover="this.style.background='var(--teal)';this.style.color='#fff';this.style.borderColor='var(--teal)';"
+      onmouseout="this.style.background='none';this.style.color='var(--teal-dark)';this.style.borderColor='var(--rule)';">
+      ⏻ Sign out
+    </button>
+  </div>
   <div id="sidebarProfilePill" style="display:none;margin-bottom:14px;padding:10px 12px;background:linear-gradient(135deg,#fff5e6,#ffe7c2);border:1px solid var(--gold);border-radius:10px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <div id="sidebarAvatar" style="width:28px;height:28px;background:var(--gold);color:#fff;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:13px;flex-shrink:0;">?</div>
@@ -347,7 +355,17 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
       <button class="nav-btn" data-view="flashcards" onclick="switchView('flashcards')">🃏 Flashcards</button>
       <button class="nav-btn" data-view="quiz" onclick="switchView('quiz')">🎯 Quiz Yourself</button>
       <button class="nav-btn" data-view="sentence" onclick="switchView('sentence')" style="background:linear-gradient(135deg,#eaf4f1,#d5e9e4);">✍️ Sentence Studio</button>
+      <!-- === MORPHOLOGY GROUP (collapsible) === -->
+  <div class="nav-group">
+    <button class="nav-group-toggle" onclick="toggleNavGroup('morphology', this)">
+      <span class="chevron">▾</span> MORPHOLOGY
+    </button>
+    <div class="nav-group-items" id="nav-group-morphology">
       <button class="nav-btn" data-view="roots" onclick="switchView('roots')">🌱 Word Roots</button>
+      <button class="nav-btn" data-view="prefixes" onclick="switchView('prefixes')">🔤 Prefixes</button>
+      <button class="nav-btn" data-view="suffixes" onclick="switchView('suffixes')">🔚 Suffixes</button>
+    </div>
+  </div>
       <button class="nav-btn" data-view="categories" onclick="switchView('categories')">🗂 Categories</button>
       <button class="nav-btn" data-view="relationships" onclick="switchView('relationships')">🔗 Relationships</button>
       <button class="nav-btn" data-view="lists" onclick="switchView('lists')">📝 My Word Lists</button>
@@ -585,6 +603,7 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 
 <!-- ============================ ROOTS LIBRARY ============================ -->
 <div class="view" id="view-roots">
+ 
   <div class="section-title">🌱 Word Roots & Word Families</div>
   <p class="muted" style="font-size:14px;margin-top:-4px;">Learning one root unlocks many words! Each card shows curated examples <strong>plus every matching word from your vocabulary</strong>. Click any word to see its definition.</p>
 
@@ -592,7 +611,21 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 
   <div id="rootsGrid" style="margin-top:14px;"></div>
 </div>
+ <!-- ============================ PREFIXES ============================ -->
+<div class="view" id="view-prefixes">
+  <div class="section-title">🔤 Prefixes — 100 Building Blocks</div>
+  <p class="muted" style="font-size:14px;margin-top:-4px;">Prefixes attach to the front of a word and change its meaning. Each card shows curated examples <strong>plus every matching word from your vocabulary</strong>. Click any word for its definition.</p>
+  <input type="text" class="search-input" id="prefixSearch" placeholder="🔍 Search prefixes, meanings, or words..." oninput="renderPrefixes()" style="margin-top:14px;">
+  <div id="prefixesGrid" style="margin-top:14px;"></div>
+</div>
 
+<!-- ============================ SUFFIXES ============================ -->
+<div class="view" id="view-suffixes">
+  <div class="section-title">🔚 Suffixes — 100 Word Endings</div>
+  <p class="muted" style="font-size:14px;margin-top:-4px;">Suffixes attach to the end of a word and change its part of speech or meaning. Each card shows curated examples <strong>plus every matching word from your vocabulary</strong>.</p>
+  <input type="text" class="search-input" id="suffixSearch" placeholder="🔍 Search suffixes, meanings, or words..." oninput="renderSuffixes()" style="margin-top:14px;">
+  <div id="suffixesGrid" style="margin-top:14px;"></div>
+</div>
 <!-- ============================ SENTENCE STUDIO ============================ -->
 <div class="view" id="view-sentence">
   <div class="section-title">✍️ Sentence Studio</div>
@@ -6683,6 +6716,236 @@ const ROOTS = [
   { root: 'viv-/vit-', origin: 'Latin', meaning: 'life', words: ['vivid','vivacious','survive','revive','vital','vitality','convivial'] }
 ];
 
+// ==================== PREFIXES (100) ====================
+const PREFIXES = [
+  // Latin-origin
+  { root: 'ab-',       origin: 'Latin',  meaning: 'away from',        words: ['abduct','abstain','absent','abhor','abnormal','abrupt','absolve','abstract'] },
+  { root: 'ad-',       origin: 'Latin',  meaning: 'to, toward',       words: ['adhere','adjacent','adjust','admit','adopt','advance','adventure','adjoin'] },
+  { root: 'ambi-',     origin: 'Latin',  meaning: 'both',             words: ['ambidextrous','ambiguous','ambivalent','ambient'] },
+  { root: 'ante-',     origin: 'Latin',  meaning: 'before',           words: ['antecedent','anterior','antebellum','antechamber','anteroom'] },
+  { root: 'bene-',     origin: 'Latin',  meaning: 'good, well',       words: ['benefit','benevolent','benefactor','beneficial','benediction','benign'] },
+  { root: 'bi-',       origin: 'Latin',  meaning: 'two',              words: ['bicycle','binary','biannual','bilingual','bipartisan','bilateral','biped'] },
+  { root: 'circum-',   origin: 'Latin',  meaning: 'around',           words: ['circumference','circumvent','circumstance','circumnavigate','circumspect'] },
+  { root: 'co-',       origin: 'Latin',  meaning: 'with, together',   words: ['coexist','cooperate','coordinate','coauthor','cohabit','coincide'] },
+  { root: 'com-/con-', origin: 'Latin',  meaning: 'with, together',   words: ['combine','connect','converge','confide','compassion','community','congregate'] },
+  { root: 'contra-',   origin: 'Latin',  meaning: 'against',          words: ['contradict','contrast','contravene','contraband','contrary'] },
+  { root: 'counter-',  origin: 'Latin',  meaning: 'against, opposite',words: ['counteract','counterfeit','counterpart','counterattack','countermand'] },
+  { root: 'de-',       origin: 'Latin',  meaning: 'down, away, reverse', words: ['descend','deform','defrost','decrease','deduce','derive','demote'] },
+  { root: 'dis-',      origin: 'Latin',  meaning: 'not, apart',       words: ['disagree','discover','disable','disperse','distract','dismiss','dissuade'] },
+  { root: 'equi-',     origin: 'Latin',  meaning: 'equal',            words: ['equidistant','equilateral','equilibrium','equinox','equivalent'] },
+  { root: 'ex-',       origin: 'Latin',  meaning: 'out, out of',      words: ['exit','exhale','extract','expel','exclude','expand','external','exhume'] },
+  { root: 'extra-',    origin: 'Latin',  meaning: 'beyond, outside',  words: ['extraordinary','extraterrestrial','extracurricular','extravagant','extraneous'] },
+  { root: 'in-/im-',   origin: 'Latin',  meaning: 'not; also into',   words: ['incorrect','invisible','impossible','import','inject','include','impart'] },
+  { root: 'il-/ir-',   origin: 'Latin',  meaning: 'not',              words: ['illegal','illiterate','illogical','irregular','irrational','irreverent'] },
+  { root: 'inter-',    origin: 'Latin',  meaning: 'between, among',   words: ['interact','interrupt','international','intervene','interject','interlude'] },
+  { root: 'intra-',    origin: 'Latin',  meaning: 'within',           words: ['intramural','intravenous','intranet','intrastate'] },
+  { root: 'intro-',    origin: 'Latin',  meaning: 'into, inward',     words: ['introduce','introvert','introspect','introspection'] },
+  { root: 'mal-',      origin: 'Latin',  meaning: 'bad, evil',        words: ['malfunction','malice','malignant','malnourished','malevolent','malady'] },
+  { root: 'mis-',      origin: 'Latin',  meaning: 'wrong, badly',     words: ['mistake','misuse','misjudge','misplace','misprint','misfortune','misguide'] },
+  { root: 'multi-',    origin: 'Latin',  meaning: 'many',             words: ['multiple','multitude','multimedia','multipurpose','multicolored','multifaceted'] },
+  { root: 'non-',      origin: 'Latin',  meaning: 'not',              words: ['nonsense','nonfiction','nonstop','nonprofit','nonviolent','nonchalant'] },
+  { root: 'ob-',       origin: 'Latin',  meaning: 'against, toward',  words: ['object','obstruct','obstacle','obscure','obsolete','obstinate'] },
+  { root: 'per-',      origin: 'Latin',  meaning: 'through, thoroughly', words: ['perceive','permit','perfect','persist','perform','permeate','pervade'] },
+  { root: 'post-',     origin: 'Latin',  meaning: 'after',            words: ['postpone','postscript','postwar','postgraduate','posterity','posthumous'] },
+  { root: 'pre-',      origin: 'Latin',  meaning: 'before',           words: ['preview','prevent','predict','prepare','prefix','precaution','preclude'] },
+  { root: 'pro-',      origin: 'Latin',  meaning: 'forward, for',     words: ['proceed','produce','promote','project','propose','provoke','proficient'] },
+  { root: 'quad-',     origin: 'Latin',  meaning: 'four',             words: ['quadrilateral','quadrant','quadruple','quadruped','quadrangle'] },
+  { root: 're-',       origin: 'Latin',  meaning: 'again, back',      words: ['return','review','rebuild','recall','recede','refresh','revive','reiterate'] },
+  { root: 'retro-',    origin: 'Latin',  meaning: 'backward',         words: ['retrospect','retrograde','retroactive','retrofit','retrogress'] },
+  { root: 'semi-',     origin: 'Latin',  meaning: 'half',             words: ['semicircle','semifinal','semicolon','semiannual','semiconductor'] },
+  { root: 'sub-',      origin: 'Latin',  meaning: 'under, below',     words: ['submarine','subway','submerge','subordinate','substitute','subvert','subside'] },
+  { root: 'super-',    origin: 'Latin',  meaning: 'above, over',      words: ['superior','supervise','supernatural','superficial','superhuman','supersede'] },
+  { root: 'sur-',      origin: 'Latin',  meaning: 'over, above',      words: ['surface','surpass','surplus','surround','survey','surmount','surcharge'] },
+  { root: 'trans-',    origin: 'Latin',  meaning: 'across, through',  words: ['transport','translate','transform','transmit','transient','transfer','transcend'] },
+  { root: 'tri-',      origin: 'Latin',  meaning: 'three',            words: ['triangle','tricycle','triple','trilogy','tripod','trident'] },
+  { root: 'ultra-',    origin: 'Latin',  meaning: 'beyond, extreme',  words: ['ultraviolet','ultrasound','ultramodern','ultraconservative'] },
+  { root: 'un-',       origin: 'Old English', meaning: 'not, opposite', words: ['unable','unhappy','unlock','unfair','unknown','undo','unravel'] },
+  { root: 'uni-',      origin: 'Latin',  meaning: 'one',              words: ['uniform','unique','unify','unite','universe','unicorn','unilateral'] },
+  { root: 'vice-',     origin: 'Latin',  meaning: 'in place of',      words: ['vice-president','viceroy','vice-chancellor'] },
+
+  // Greek-origin
+  { root: 'a-/an-',    origin: 'Greek',  meaning: 'without, not',     words: ['amoral','atheist','apathy','atypical','anonymous','anarchy','anemia'] },
+  { root: 'anti-',     origin: 'Greek',  meaning: 'against',          words: ['antibody','antisocial','antibiotic','antithesis','antidote','antagonist'] },
+  { root: 'auto-',     origin: 'Greek',  meaning: 'self',             words: ['automatic','autobiography','autonomous','autopilot','autograph','automobile'] },
+  { root: 'cata-',     origin: 'Greek',  meaning: 'down, against',    words: ['catastrophe','catalog','catalyst','catapult','cataclysm'] },
+  { root: 'dia-',      origin: 'Greek',  meaning: 'through, across',  words: ['diameter','diagonal','dialogue','diagnose','diagram','dialect'] },
+  { root: 'dys-',      origin: 'Greek',  meaning: 'bad, difficult',   words: ['dysfunction','dyslexia','dystopia','dyspepsia','dysentery'] },
+  { root: 'en-/em-',   origin: 'Greek',  meaning: 'in, into',         words: ['enclose','enrich','enable','embrace','empower','embark','enact'] },
+  { root: 'epi-',      origin: 'Greek',  meaning: 'upon, over',       words: ['epidemic','epilogue','epicenter','epidermis','epitaph','epigram'] },
+  { root: 'eu-',       origin: 'Greek',  meaning: 'good, well',       words: ['euphoria','eulogy','euphemism','euphony','euthanasia'] },
+  { root: 'hetero-',   origin: 'Greek',  meaning: 'different',        words: ['heterogeneous','heterodox','heterogenous'] },
+  { root: 'homo-',     origin: 'Greek',  meaning: 'same',             words: ['homogeneous','homograph','homophone','homonym','homogenize'] },
+  { root: 'hyper-',    origin: 'Greek',  meaning: 'over, above, excess', words: ['hyperactive','hypersensitive','hyperbole','hypertension','hyperventilate'] },
+  { root: 'hypo-',     origin: 'Greek',  meaning: 'under, below',     words: ['hypothesis','hypothermia','hypodermic','hypocrite','hypoglycemia'] },
+  { root: 'macro-',    origin: 'Greek',  meaning: 'large',            words: ['macrocosm','macroeconomics','macroscopic'] },
+  { root: 'mega-',     origin: 'Greek',  meaning: 'great, large',     words: ['megaphone','megalith','megabyte','megalomania','megawatt'] },
+  { root: 'meta-',     origin: 'Greek',  meaning: 'change, beyond',   words: ['metamorphosis','metaphor','metaphysics','methodical','metaphysical'] },
+  { root: 'micro-',    origin: 'Greek',  meaning: 'small',            words: ['microscope','microwave','microbe','microcosm','microphone','microorganism'] },
+  { root: 'mono-',     origin: 'Greek',  meaning: 'one, single',      words: ['monopoly','monotone','monologue','monotony','monogamous','monolith'] },
+  { root: 'neo-',      origin: 'Greek',  meaning: 'new',              words: ['neonatal','neolithic','neoclassical','neophyte','neologism'] },
+  { root: 'pan-',      origin: 'Greek',  meaning: 'all',              words: ['panorama','pandemic','pantheon','panacea','pandemonium'] },
+  { root: 'para-',     origin: 'Greek',  meaning: 'beside, beyond',   words: ['parallel','paradox','paragraph','paramedic','parasite','paramount'] },
+  { root: 'peri-',     origin: 'Greek',  meaning: 'around',           words: ['perimeter','periphery','periscope','periodic','peripheral'] },
+  { root: 'poly-',     origin: 'Greek',  meaning: 'many',             words: ['polygon','polyglot','polygamy','polytheism','polynomial','polyhedron'] },
+  { root: 'proto-',    origin: 'Greek',  meaning: 'first',            words: ['prototype','protocol','protagonist','protoplasm','protozoa'] },
+  { root: 'pseudo-',   origin: 'Greek',  meaning: 'false',            words: ['pseudonym','pseudoscience','pseudointellectual'] },
+  { root: 'syn-/sym-', origin: 'Greek',  meaning: 'together, with',   words: ['synonym','sympathy','symphony','synthesis','symmetry','synchronize','symbiosis'] },
+  { root: 'tele-',     origin: 'Greek',  meaning: 'far, distant',     words: ['telephone','television','telescope','telegraph','telecommute','telepathy'] },
+
+  // Old English / Germanic
+  { root: 'be-',       origin: 'Old English', meaning: 'make, cause', words: ['befriend','belittle','beloved','bewitch','become','behold','besiege'] },
+  { root: 'fore-',     origin: 'Old English', meaning: 'before, in front', words: ['forecast','forehead','foresee','forefather','foreword','foreshadow'] },
+  { root: 'mid-',      origin: 'Old English', meaning: 'middle',      words: ['midnight','midway','midpoint','midterm','midsummer'] },
+  { root: 'out-',      origin: 'Old English', meaning: 'surpass, external', words: ['outdo','outlast','outgoing','outrun','output','outstanding'] },
+  { root: 'over-',     origin: 'Old English', meaning: 'above, excess', words: ['overcome','overreact','overflow','overlook','overwhelm','overrule'] },
+  { root: 'under-',    origin: 'Old English', meaning: 'below, insufficient', words: ['underline','undermine','underestimate','undergo','underground','undertake'] },
+  { root: 'up-',       origin: 'Old English', meaning: 'upward',      words: ['upgrade','uphold','uplift','upheaval','uproot','upright'] },
+  { root: 'with-',     origin: 'Old English', meaning: 'against, back', words: ['withdraw','withstand','withhold','within'] },
+
+  // Number & measure
+  { root: 'centi-',    origin: 'Latin',  meaning: 'hundredth',        words: ['centimeter','centipede','centigrade','centennial','centurion'] },
+  { root: 'deca-',     origin: 'Greek',  meaning: 'ten',              words: ['decade','decathlon','decagon','decimal'] },
+  { root: 'giga-',     origin: 'Greek',  meaning: 'billion',          words: ['gigabyte','gigawatt','gigahertz'] },
+  { root: 'hecto-',    origin: 'Greek',  meaning: 'hundred',          words: ['hectare','hectometer','hectogram'] },
+  { root: 'hemi-',     origin: 'Greek',  meaning: 'half',             words: ['hemisphere','hemicycle','hemistich'] },
+  { root: 'hex-',      origin: 'Greek',  meaning: 'six',              words: ['hexagon','hexagram','hexameter','hexapod'] },
+  { root: 'kilo-',     origin: 'Greek',  meaning: 'thousand',         words: ['kilometer','kilogram','kilowatt','kilobyte'] },
+  { root: 'milli-',    origin: 'Latin',  meaning: 'thousandth',       words: ['millimeter','milligram','millisecond','millipede'] },
+  { root: 'nano-',     origin: 'Greek',  meaning: 'billionth',        words: ['nanometer','nanosecond','nanotechnology'] },
+  { root: 'nona-',     origin: 'Latin',  meaning: 'nine',             words: ['nonagon','nonagenarian'] },
+  { root: 'oct-',      origin: 'Latin',  meaning: 'eight',            words: ['octagon','octopus','octave','octet'] },
+  { root: 'pent-',     origin: 'Greek',  meaning: 'five',             words: ['pentagon','pentathlon','pentameter'] },
+  { root: 'sept-',     origin: 'Latin',  meaning: 'seven',            words: ['September','septet','septennial'] },
+
+  // Specialty / scientific
+  { root: 'aero-',     origin: 'Greek',  meaning: 'air',              words: ['aeronautics','aerosol','aerobic','aerodynamic'] },
+  { root: 'aqua-',     origin: 'Latin',  meaning: 'water',            words: ['aquarium','aquatic','aqueduct','aquamarine'] },
+  { root: 'astro-',    origin: 'Greek',  meaning: 'star',             words: ['astronomy','astronaut','asterisk','astrology','astral'] },
+  { root: 'audio-',    origin: 'Latin',  meaning: 'hear',             words: ['audible','audience','audition','auditorium'] },
+  { root: 'bio-',      origin: 'Greek',  meaning: 'life',             words: ['biology','biography','biodiversity','biosphere','biopsy'] },
+  { root: 'chrono-',   origin: 'Greek',  meaning: 'time',             words: ['chronic','chronicle','chronology','synchronize','anachronism'] },
+  { root: 'crypto-',   origin: 'Greek',  meaning: 'hidden',           words: ['cryptic','cryptography','cryptogram'] },
+  { root: 'geo-',      origin: 'Greek',  meaning: 'earth',            words: ['geography','geology','geometry','geopolitical','geothermal'] },
+  { root: 'hydro-',    origin: 'Greek',  meaning: 'water',            words: ['hydrant','hydraulic','hydrogen','hydration','dehydrate'] },
+  { root: 'photo-',    origin: 'Greek',  meaning: 'light',            words: ['photograph','photosynthesis','photon','photocopy','photogenic'] },
+  { root: 'pyro-',     origin: 'Greek',  meaning: 'fire',             words: ['pyromania','pyrotechnics','pyre'] },
+  { root: 'thermo-',   origin: 'Greek',  meaning: 'heat',             words: ['thermostat','thermometer','thermodynamics','thermal'] }
+];
+
+// ==================== SUFFIXES (100) ====================
+const SUFFIXES = [
+  // Noun-forming
+  { root: '-tion/-sion', origin: 'Latin',  meaning: 'act, state, result', words: ['action','education','decision','tension','celebration','information','creation','division'] },
+  { root: '-ment',    origin: 'Latin',   meaning: 'result, state, action', words: ['argument','development','achievement','movement','agreement','government','punishment'] },
+  { root: '-ness',    origin: 'Old English', meaning: 'state, quality', words: ['happiness','kindness','darkness','sadness','weakness','awareness','loneliness'] },
+  { root: '-ity/-ty', origin: 'Latin',   meaning: 'state, quality',   words: ['activity','ability','safety','honesty','curiosity','generosity','gravity','purity'] },
+  { root: '-ance/-ence', origin: 'Latin', meaning: 'state, act, condition', words: ['performance','guidance','importance','existence','evidence','difference','patience'] },
+  { root: '-ancy/-ency', origin: 'Latin', meaning: 'state, condition', words: ['vacancy','infancy','agency','currency','urgency','tendency','frequency'] },
+  { root: '-ship',    origin: 'Old English', meaning: 'state, position', words: ['friendship','leadership','relationship','hardship','scholarship','championship'] },
+  { root: '-hood',    origin: 'Old English', meaning: 'state, condition', words: ['childhood','neighborhood','brotherhood','adulthood','likelihood','falsehood'] },
+  { root: '-dom',     origin: 'Old English', meaning: 'state, domain', words: ['freedom','kingdom','wisdom','boredom','stardom','martyrdom'] },
+  { root: '-age',     origin: 'Latin',   meaning: 'result, state, act', words: ['marriage','storage','courage','package','mileage','passage','shortage'] },
+  { root: '-ism',     origin: 'Greek',   meaning: 'belief, doctrine, practice', words: ['heroism','capitalism','criticism','optimism','journalism','patriotism','realism'] },
+  { root: '-ist',     origin: 'Greek',   meaning: 'one who practices', words: ['artist','dentist','scientist','novelist','pianist','tourist','biologist'] },
+  { root: '-er/-or',  origin: 'Latin',   meaning: 'one who does',     words: ['teacher','worker','actor','editor','sailor','professor','writer'] },
+  { root: '-eer',     origin: 'Latin',   meaning: 'one engaged in',   words: ['engineer','mountaineer','volunteer','pioneer','auctioneer'] },
+  { root: '-ian',     origin: 'Latin',   meaning: 'one who, related to', words: ['musician','historian','guardian','civilian','librarian','physician'] },
+  { root: '-ee',      origin: 'French',  meaning: 'one who receives', words: ['employee','trainee','refugee','nominee','addressee','payee'] },
+  { root: '-ess',     origin: 'French',  meaning: 'female',           words: ['actress','princess','hostess','goddess','waitress','lioness'] },
+  { root: '-ette',    origin: 'French',  meaning: 'small, female',    words: ['kitchenette','cassette','brunette','majorette','statuette'] },
+  { root: '-let',     origin: 'French',  meaning: 'small',            words: ['booklet','piglet','droplet','leaflet','hamlet','tablet'] },
+  { root: '-ling',    origin: 'Old English', meaning: 'small, young', words: ['duckling','seedling','sibling','sapling','gosling','yearling'] },
+  { root: '-ery/-ry', origin: 'French',  meaning: 'place, practice',  words: ['bakery','mystery','bravery','jewelry','industry','scenery','pottery'] },
+  { root: '-ary',     origin: 'Latin',   meaning: 'place, related to',words: ['library','dictionary','sanctuary','commentary','anniversary'] },
+  { root: '-ory',     origin: 'Latin',   meaning: 'place, characterized by', words: ['factory','dormitory','mandatory','satisfactory','laboratory'] },
+  { root: '-ium',     origin: 'Latin',   meaning: 'element, place',   words: ['stadium','aquarium','medium','gymnasium','uranium'] },
+  { root: '-arium',   origin: 'Latin',   meaning: 'place for',        words: ['aquarium','planetarium','terrarium','solarium'] },
+  { root: '-ology',   origin: 'Greek',   meaning: 'study of',         words: ['biology','geology','psychology','technology','apology','sociology'] },
+  { root: '-graphy',  origin: 'Greek',   meaning: 'writing, description', words: ['geography','photography','biography','calligraphy','choreography'] },
+  { root: '-cracy',   origin: 'Greek',   meaning: 'rule, government', words: ['democracy','aristocracy','bureaucracy','autocracy','theocracy'] },
+  { root: '-crat',    origin: 'Greek',   meaning: 'member of a rule', words: ['democrat','aristocrat','bureaucrat','autocrat','plutocrat'] },
+  { root: '-archy',   origin: 'Greek',   meaning: 'rule of',          words: ['monarchy','anarchy','oligarchy','hierarchy','matriarchy'] },
+  { root: '-arch',    origin: 'Greek',   meaning: 'ruler, chief',     words: ['monarch','patriarch','matriarch','oligarch'] },
+  { root: '-nomy',    origin: 'Greek',   meaning: 'law, science of',  words: ['astronomy','economy','autonomy','agronomy','taxonomy'] },
+  { root: '-sophy',   origin: 'Greek',   meaning: 'wisdom',           words: ['philosophy','theosophy'] },
+  { root: '-theism',  origin: 'Greek',   meaning: 'belief in god(s)', words: ['monotheism','polytheism','atheism','pantheism'] },
+  { root: '-phobia',  origin: 'Greek',   meaning: 'fear of',          words: ['claustrophobia','arachnophobia','xenophobia','hydrophobia','agoraphobia'] },
+  { root: '-phile',   origin: 'Greek',   meaning: 'lover of',         words: ['bibliophile','audiophile','francophile'] },
+  { root: '-cide',    origin: 'Latin',   meaning: 'killer, killing',  words: ['homicide','insecticide','genocide','pesticide','suicide'] },
+  { root: '-vore',    origin: 'Latin',   meaning: 'eater',            words: ['carnivore','herbivore','omnivore','insectivore'] },
+  { root: '-mony',    origin: 'Latin',   meaning: 'result, state',    words: ['testimony','ceremony','harmony','matrimony','parsimony'] },
+  { root: '-tude',    origin: 'Latin',   meaning: 'state, quality',   words: ['attitude','gratitude','altitude','magnitude','solitude','aptitude'] },
+  { root: '-acy',     origin: 'Latin',   meaning: 'state, quality',   words: ['privacy','democracy','accuracy','literacy','diplomacy','legacy'] },
+  { root: '-sy',      origin: 'Greek',   meaning: 'state, condition', words: ['fantasy','jealousy','controversy','hypocrisy','ecstasy'] },
+  { root: '-ure',     origin: 'Latin',   meaning: 'act, condition',   words: ['pleasure','adventure','creature','mixture','failure','pressure','structure'] },
+  { root: '-th',      origin: 'Old English', meaning: 'state, quality; ordinal', words: ['warmth','growth','length','breadth','fourth','tenth','strength'] },
+  { root: '-ster',    origin: 'Old English', meaning: 'one who',      words: ['youngster','gangster','hipster','jokester','trickster'] },
+  { root: '-ard',     origin: 'French',  meaning: 'one who (often pejorative)', words: ['drunkard','coward','wizard','sluggard','laggard'] },
+
+  // Adjective-forming
+  { root: '-able/-ible', origin: 'Latin', meaning: 'capable of, worthy of', words: ['comfortable','portable','reliable','visible','terrible','edible','flexible'] },
+  { root: '-al',      origin: 'Latin',   meaning: 'relating to',      words: ['natural','personal','cultural','national','musical','historical','universal'] },
+  { root: '-ial',     origin: 'Latin',   meaning: 'relating to',      words: ['commercial','official','industrial','financial','colonial','memorial'] },
+  { root: '-ical',    origin: 'Latin',   meaning: 'relating to',      words: ['musical','logical','historical','medical','mechanical','mathematical'] },
+  { root: '-ous',     origin: 'Latin',   meaning: 'full of',          words: ['dangerous','famous','generous','nervous','joyous','marvelous','tremendous'] },
+  { root: '-ious',    origin: 'Latin',   meaning: 'full of, having',  words: ['curious','mysterious','glorious','ambitious','delicious','religious'] },
+  { root: '-eous',    origin: 'Latin',   meaning: 'full of',          words: ['righteous','courteous','gaseous','extraneous'] },
+  { root: '-uous',    origin: 'Latin',   meaning: 'having quality of',words: ['continuous','ambiguous','conspicuous','contemptuous','impetuous'] },
+  { root: '-ful',     origin: 'Old English', meaning: 'full of',      words: ['careful','powerful','wonderful','helpful','meaningful','thoughtful','beautiful'] },
+  { root: '-less',    origin: 'Old English', meaning: 'without',      words: ['careless','hopeless','useless','endless','fearless','restless','ruthless'] },
+  { root: '-ish',     origin: 'Old English', meaning: 'like, having quality of', words: ['childish','foolish','selfish','reddish','stylish','feverish','sluggish'] },
+  { root: '-ive',     origin: 'Latin',   meaning: 'having quality of',words: ['active','creative','effective','positive','expensive','sensitive','decisive'] },
+  { root: '-ative',   origin: 'Latin',   meaning: 'tendency, quality',words: ['creative','talkative','decorative','imaginative','cooperative','informative'] },
+  { root: '-ic',      origin: 'Greek',   meaning: 'relating to, like',words: ['heroic','tragic','comic','magnetic','poetic','dramatic','allergic'] },
+  { root: '-y',       origin: 'Old English', meaning: 'having quality of', words: ['dirty','sunny','wealthy','healthy','funny','tricky','angry','stormy'] },
+  { root: '-like',    origin: 'Old English', meaning: 'similar to',   words: ['childlike','businesslike','dreamlike','warlike','lifelike'] },
+  { root: '-en',      origin: 'Old English', meaning: 'made of; make', words: ['wooden','golden','silken','woolen','oaken','harden','strengthen'] },
+  { root: '-esque',   origin: 'French',  meaning: 'in the style of',  words: ['picturesque','statuesque','grotesque','arabesque','Kafkaesque'] },
+  { root: '-most',    origin: 'Old English', meaning: 'superlative',  words: ['utmost','innermost','foremost','uppermost','outermost'] },
+  { root: '-worthy',  origin: 'Old English', meaning: 'deserving of', words: ['trustworthy','praiseworthy','noteworthy','newsworthy'] },
+  { root: '-proof',   origin: 'Old English', meaning: 'resistant to', words: ['waterproof','fireproof','soundproof','foolproof','bulletproof'] },
+  { root: '-ant/-ent', origin: 'Latin',  meaning: 'having quality of; one who', words: ['important','brilliant','elegant','different','patient','president','confident'] },
+  { root: '-id',      origin: 'Latin',   meaning: 'having quality of',words: ['rigid','fluid','humid','vivid','timid','splendid','morbid'] },
+  { root: '-ile',     origin: 'Latin',   meaning: 'capable of, having',words: ['fragile','mobile','agile','hostile','futile','versatile','juvenile'] },
+  { root: '-ate',     origin: 'Latin',   meaning: 'having quality; to make', words: ['fortunate','delicate','moderate','accurate','articulate','activate'] },
+  { root: '-fic',     origin: 'Latin',   meaning: 'making, causing',  words: ['terrific','horrific','scientific','pacific','prolific','specific'] },
+  { root: '-escent',  origin: 'Latin',   meaning: 'becoming',         words: ['adolescent','obsolescent','fluorescent','iridescent','luminescent'] },
+  { root: '-genic',   origin: 'Greek',   meaning: 'producing',        words: ['photogenic','carcinogenic','hypoallergenic','pathogenic'] },
+  { root: '-oid',     origin: 'Greek',   meaning: 'resembling',       words: ['humanoid','android','asteroid','spheroid','tabloid'] },
+
+  // Verb-forming
+  { root: '-ize/-ise',origin: 'Greek',   meaning: 'make, become',     words: ['organize','realize','criticize','memorize','apologize','standardize','recognize'] },
+  { root: '-ify/-fy', origin: 'Latin',   meaning: 'make, cause to be',words: ['simplify','purify','satisfy','classify','magnify','terrify','justify'] },
+
+  // Adverb-forming
+  { root: '-ly',      origin: 'Old English', meaning: 'in a manner',  words: ['quickly','happily','easily','carefully','completely','obviously','gently'] },
+  { root: '-wise',    origin: 'Old English', meaning: 'in manner or direction of', words: ['clockwise','likewise','otherwise','lengthwise'] },
+  { root: '-ways',    origin: 'Old English', meaning: 'in a manner',  words: ['sideways','always','longways'] },
+  { root: '-ward',    origin: 'Old English', meaning: 'in direction of', words: ['forward','backward','upward','downward','homeward','westward'] },
+
+  // Grammatical
+  { root: '-ed',      origin: 'Old English', meaning: 'past tense; having', words: ['walked','jumped','wanted','needed','talented','gifted'] },
+  { root: '-ing',     origin: 'Old English', meaning: 'action, ongoing', words: ['running','singing','building','painting','learning'] },
+  { root: '-est',     origin: 'Old English', meaning: 'superlative',  words: ['tallest','fastest','brightest','oldest','smartest'] },
+
+  // Scientific / medical / measurement
+  { root: '-itis',    origin: 'Greek',   meaning: 'inflammation',     words: ['arthritis','bronchitis','tonsillitis','appendicitis','laryngitis'] },
+  { root: '-oma',     origin: 'Greek',   meaning: 'tumor, mass',      words: ['carcinoma','sarcoma','melanoma','lymphoma'] },
+  { root: '-osis',    origin: 'Greek',   meaning: 'condition, process', words: ['hypnosis','diagnosis','symbiosis','metamorphosis','osmosis'] },
+  { root: '-iasis',   origin: 'Greek',   meaning: 'diseased condition', words: ['psoriasis','elephantiasis'] },
+  { root: '-pathy',   origin: 'Greek',   meaning: 'feeling, disease', words: ['sympathy','apathy','empathy','telepathy','neuropathy'] },
+  { root: '-phone',   origin: 'Greek',   meaning: 'sound',            words: ['telephone','microphone','saxophone','xylophone','megaphone'] },
+  { root: '-graph',   origin: 'Greek',   meaning: 'writing, drawing', words: ['telegraph','photograph','paragraph','autograph','seismograph'] },
+  { root: '-meter',   origin: 'Greek',   meaning: 'measure',          words: ['thermometer','barometer','kilometer','diameter','perimeter','speedometer'] },
+  { root: '-metry',   origin: 'Greek',   meaning: 'measurement',      words: ['geometry','symmetry','trigonometry','biometry'] },
+  { root: '-scope',   origin: 'Greek',   meaning: 'instrument for viewing', words: ['microscope','telescope','periscope','kaleidoscope','stethoscope'] },
+  { root: '-naut',    origin: 'Greek',   meaning: 'sailor, traveler', words: ['astronaut','aeronaut','cosmonaut'] },
+  { root: '-gon',     origin: 'Greek',   meaning: 'angle, side',      words: ['pentagon','polygon','hexagon','octagon','decagon'] },
+  { root: '-gram',    origin: 'Greek',   meaning: 'writing, drawing', words: ['telegram','diagram','program','hologram','epigram','anagram'] },
+  { root: '-saur',    origin: 'Greek',   meaning: 'lizard',           words: ['dinosaur','tyrannosaur','brontosaur'] },
+  { root: '-cyte',    origin: 'Greek',   meaning: 'cell',             words: ['erythrocyte','leukocyte','lymphocyte'] }
+];
+
 // Parse a root string like "ab-", "-ity/-ty", "dict-", "duc-/duct-" into patterns
 function _extractRootPatterns(rootStr) {
   return rootStr.split('/').map(part => {
@@ -6720,6 +6983,27 @@ function _matchVocabForRoot(root) {
       }
     }
   });
+  return Array.from(matches).sort();
+}
+
+// Stricter affix matching for PREFIXES / SUFFIXES (min 3 extra chars vs 2 for roots)
+function _matchVocabForAffix(affix, kind /* 'prefix' | 'suffix' */) {
+  const patterns = affix.root.split('/').map(p => p.replace(/^-+|-+$/g, '').toLowerCase()).filter(p => p.length >= 2);
+  if (!patterns.length) return [];
+  const curatedSet = new Set(affix.words.map(w => w.toLowerCase()));
+  const matches = new Set();
+  WORDS.forEach(w => {
+    const word = w.word.toLowerCase();
+    for (const p of patterns) {
+      // Strict: require min 3 extra chars beyond the affix (avoids "un" matching "und")
+      if (word.length < p.length + 3) continue;
+      const hit = kind === 'prefix' ? word.startsWith(p) : word.endsWith(p);
+      if (hit) { matches.add(w.word); break; }
+    }
+  });
+  // Merge curated words that are in vocab too
+  const wordsInVocab = new Set(WORDS.map(w => w.word.toLowerCase()));
+  affix.words.forEach(w => { if (wordsInVocab.has(w.toLowerCase())) matches.add(w); });
   return Array.from(matches).sort();
 }
 
@@ -6801,6 +7085,113 @@ function renderRoots() {
   if (list.length === 0) {
     grid.innerHTML = '<div class="empty-state">No roots match your search.</div>';
   }
+}
+
+let _lastFilteredPrefixes = [];
+let _lastFilteredSuffixes = [];
+
+function _renderAffixGrid(affixArr, kind, gridId, searchId, lastFilteredRef) {
+  const search = (document.getElementById(searchId) ? document.getElementById(searchId).value : '').toLowerCase();
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const wordsInVocab = new Set(WORDS.map(w => w.word.toLowerCase()));
+  const wordDefs = {};
+  WORDS.forEach(w => { wordDefs[w.word.toLowerCase()] = { def: w.def, level: w.level }; });
+
+  let list = affixArr.slice();
+  if (search) {
+    list = list.filter(a =>
+      a.root.toLowerCase().includes(search) ||
+      a.meaning.toLowerCase().includes(search) ||
+      a.words.some(w => w.toLowerCase().includes(search)) ||
+      _matchVocabForAffix(a, kind).some(w => w.toLowerCase().includes(search))
+    );
+  }
+
+  const stats = list.map(a => ({ root: a, matched: _matchVocabForAffix(a, kind) }));
+  lastFilteredRef.length = 0;
+  stats.forEach(s => lastFilteredRef.push(s));
+
+  const emoji = kind === 'prefix' ? '🔤' : '🔚';
+  const label = kind === 'prefix' ? 'Prefix' : 'Suffix';
+  const headerHtml = '<div class="root-summary" style="background:linear-gradient(135deg,#fff5e6,#ffe7c2);border:1px solid var(--gold);border-radius:12px;padding:14px 18px;margin-bottom:16px;">' +
+    '<div style="font-weight:700;color:var(--teal-dark);font-size:15px;margin-bottom:4px;">' + emoji + ' ' + label + ' Explorer</div>' +
+    '<div style="color:#5a5245;font-size:13px;">Showing <strong>' + list.length + '</strong> ' + label.toLowerCase() + 'es · click any word to jump to its definition. <strong>Bold</strong> = curated example; ⭐ = in your vocabulary.</div>' +
+  '</div>';
+
+  const bodyHtml = stats.map(({ root: a, matched }, idx) => {
+    const curatedSet = new Set(a.words.map(w => w.toLowerCase()));
+    const curatedChips = a.words.map(w => {
+      const inVocab = wordsInVocab.has(w.toLowerCase());
+      const title = inVocab && wordDefs[w.toLowerCase()] ? ' title="' + (wordDefs[w.toLowerCase()].def || '').replace(/"/g, '&quot;') + '"' : '';
+      return '<span class="root-word-chip curated' + (inVocab ? ' invocab' : '') + '"' +
+        (inVocab ? ' onclick="jumpToWord(\'' + w.replace(/'/g, "\\'") + '\')" style="cursor:pointer;"' : '') +
+        title + '><strong>' + w + '</strong>' + (inVocab ? ' ⭐' : '') + '</span>';
+    }).join('');
+
+    const autoWords = matched.filter(w => !curatedSet.has(w.toLowerCase()));
+    const autoChips = autoWords.map(w => {
+      const info = wordDefs[w.toLowerCase()] || {};
+      const title = info.def ? ' title="' + info.def.replace(/"/g, '&quot;') + '"' : '';
+      const lvl = info.level ? '<span class="chip-lvl">' + info.level + '</span>' : '';
+      return '<span class="root-word-chip auto" onclick="jumpToWord(\'' + w.replace(/'/g, "\\'") + '\')" style="cursor:pointer;"' + title + '>' + w + lvl + '</span>';
+    }).join('');
+
+    const studyableCount = a.words.filter(w => wordsInVocab.has(w.toLowerCase())).length + autoWords.length;
+    const studyBtn = studyableCount > 0
+      ? '<button class="btn root-study-btn" onclick="startAffixStudy(\'' + kind + '\',' + idx + ')" style="margin-top:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;border:none;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;">📚 Study this ' + label.toLowerCase() + ' (' + studyableCount + ' words)</button>'
+      : '';
+
+    return '<div class="root-card">' +
+      '<div class="root-header">' +
+        '<span class="root-name">' + a.root + '</span>' +
+        '<span class="root-origin">' + a.origin + '</span>' +
+        '<span class="root-count" style="margin-left:auto;background:var(--teal);color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">' + studyableCount + ' words</span>' +
+      '</div>' +
+      '<div class="root-meaning">"' + a.meaning + '"</div>' +
+      studyBtn +
+      (curatedChips ? '<div class="root-section-label" style="font-size:11px;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px;font-weight:600;">Curated examples</div><div class="root-words">' + curatedChips + '</div>' : '') +
+      (autoChips ? '<div class="root-section-label" style="font-size:11px;color:#7a6f5a;text-transform:uppercase;letter-spacing:0.5px;margin:12px 0 6px;font-weight:600;">More from your vocabulary (' + autoWords.length + ')</div><div class="root-words">' + autoChips + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  grid.innerHTML = headerHtml + bodyHtml;
+  if (list.length === 0) grid.innerHTML = '<div class="empty-state">No ' + label.toLowerCase() + 'es match your search.</div>';
+}
+
+function renderPrefixes() { _renderAffixGrid(PREFIXES, 'prefix', 'prefixesGrid', 'prefixSearch', _lastFilteredPrefixes); }
+function renderSuffixes() { _renderAffixGrid(SUFFIXES, 'suffix', 'suffixesGrid', 'suffixSearch', _lastFilteredSuffixes); }
+
+// Reuse existing Root Study overlay for prefix/suffix study
+function startAffixStudy(kind, idx) {
+  const list = kind === 'prefix' ? _lastFilteredPrefixes : _lastFilteredSuffixes;
+  if (idx < 0 || idx >= list.length) return;
+  const stat = list[idx];
+  const wordsInVocab = new Set(WORDS.map(w => w.word.toLowerCase()));
+  const wordMap = {};
+  WORDS.forEach(w => { wordMap[w.word.toLowerCase()] = w; });
+  const set = new Set();
+  stat.root.words.forEach(w => { if (wordsInVocab.has(w.toLowerCase())) set.add(w.toLowerCase()); });
+  stat.matched.forEach(w => set.add(w.toLowerCase()));
+  const words = Array.from(set).sort().map(k => wordMap[k]).filter(Boolean);
+  if (!words.length) { alert('No vocabulary words found for this ' + kind + '.'); return; }
+
+  rootStudyState = {
+    rootIdx: idx,
+    wordIdx: 0,
+    words: words,
+    root: { root: stat.root.root, meaning: stat.root.meaning, origin: stat.root.origin },
+    revealed: false,
+    masteredThisSession: new Set(),
+    _affixKind: kind
+  };
+  const backBtn = document.getElementById('rsBackBtn');
+  if (backBtn) backBtn.textContent = '← Back to ' + (kind === 'prefix' ? 'Prefixes' : 'Suffixes');
+  document.getElementById('rootStudyOverlay').style.display = 'block';
+  document.getElementById('rsFinished').style.display = 'none';
+  document.getElementById('rsCard').style.display = 'block';
+  document.querySelector('#rootStudyOverlay [id="rsPrevBtn"]').parentElement.style.display = 'flex';
+  renderRootStudyCard();
 }
 
 // ==================== ROOT STUDY MODE ====================
@@ -6934,6 +7325,18 @@ function rootStudyPrev() {
 
 function rootStudyNextRoot() {
   const s = rootStudyState;
+  if (s._affixKind === 'prefix') {
+    const nextIdx = s.rootIdx + 1;
+    if (nextIdx >= _lastFilteredPrefixes.length) return;
+    startAffixStudy('prefix', nextIdx);
+    return;
+  }
+  if (s._affixKind === 'suffix') {
+    const nextIdx = s.rootIdx + 1;
+    if (nextIdx >= _lastFilteredSuffixes.length) return;
+    startAffixStudy('suffix', nextIdx);
+    return;
+  }
   if (s._isCategoryMode) {
     const nextIdx = s.rootIdx + 1;
     if (nextIdx >= CATEGORIES.length) return;
@@ -6951,6 +7354,12 @@ function closeRootStudy() {
   if (rootStudyState && rootStudyState._isCategoryMode) {
     if (typeof renderCategories === 'function') renderCategories();
     if (currentView !== 'categories') switchView('categories');
+  } else if (rootStudyState && rootStudyState._affixKind === 'prefix') {
+    if (currentView !== 'prefixes') switchView('prefixes');
+    renderPrefixes();
+  } else if (rootStudyState && rootStudyState._affixKind === 'suffix') {
+    if (currentView !== 'suffixes') switchView('suffixes');
+    renderSuffixes();
   } else {
     if (typeof renderRoots === 'function') renderRoots();
   }
@@ -6985,6 +7394,8 @@ function jumpToWord(word) {
       document.getElementById('practice-results').style.display = 'none';
     }
     if (v === 'roots') renderRoots();
+    if (v === 'prefixes') renderPrefixes();
+    if (v === 'suffixes') renderSuffixes();
     if (v === 'trouble') renderTroubleWords();
     // Robust nav highlighting via data-view attribute
     document.querySelectorAll('.nav-btn[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
@@ -10142,7 +10553,7 @@ function toggleNavGroup(name, btn) {
 }
 // Restore nav-group state on load; default: Learn expanded, Progress expanded
 (function restoreNavGroups() {
-  ['learn', 'progress'].forEach(name => {
+  ['learn', 'progress', 'morphology'].forEach(name => {
     try {
       const collapsed = localStorage.getItem('cogat-nav-group-' + name) === '1';
       if (collapsed) {
@@ -10780,6 +11191,45 @@ function updateSidebarProfilePill() {
   } else {
     pill.style.display = 'none';
   }
+  if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();
+}
+
+// ==================== HEADER SIGN OUT ====================
+function isTeacherSignedIn() {
+  try { return !!sessionStorage.getItem(TEACHER_TOKEN_KEY); } catch(e) { return false; }
+}
+
+function updateHeaderSignOutBtn() {
+  const btn = document.getElementById('headerSignOutBtn');
+  if (!btn) return;
+  const studentIn = !!(CURRENT_STUDENT_ID && CURRENT_STUDENT_NAME);
+  const teacherIn = isTeacherSignedIn();
+  btn.style.display = (studentIn || teacherIn) ? 'inline-block' : 'none';
+  // Label reflects which session is active (teacher takes precedence if both somehow)
+  btn.textContent = teacherIn ? '⏻ Sign out (Teacher)' : '⏻ Sign out';
+}
+
+function headerSignOut() {
+  const teacherIn = isTeacherSignedIn();
+  const studentIn = !!(CURRENT_STUDENT_ID && CURRENT_STUDENT_NAME);
+  if (teacherIn) {
+    if (!confirm('Sign out of teacher account?')) return;
+    if (typeof teacherLogout === 'function') {
+      teacherLogout();
+    } else {
+      // Fallback if teacherLogout not loaded
+      try { sessionStorage.removeItem(TEACHER_TOKEN_KEY); } catch(e) {}
+      location.reload();
+    }
+    updateHeaderSignOutBtn();
+    return;
+  }
+  if (studentIn) {
+    // switchStudentProfile already has its own confirm dialog
+    switchStudentProfile();
+    updateHeaderSignOutBtn();
+    return;
+  }
 }
 
 function switchStudentProfile() {
@@ -11183,6 +11633,7 @@ async function teacherLogin() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     try { sessionStorage.setItem(TEACHER_TOKEN_KEY, data.token); } catch(e) {}
+	if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();
     document.getElementById('teacherLoginOverlay').style.display = 'none';
     openTeacherDash();
   } catch(e) {

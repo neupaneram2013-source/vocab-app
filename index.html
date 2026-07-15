@@ -318,15 +318,7 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 <div class="layout">
 
 <aside class="sidebar">
-  <div class="sidebar-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-    <span>CogAT Vocabulary</span>
-    <button id="headerSignOutBtn" onclick="headerSignOut()" title="Sign out"
-      style="display:none;background:none;border:1px solid var(--rule);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--teal-dark);cursor:pointer;font-family:inherit;line-height:1;transition:all 0.15s;"
-      onmouseover="this.style.background='var(--teal)';this.style.color='#fff';this.style.borderColor='var(--teal)';"
-      onmouseout="this.style.background='none';this.style.color='var(--teal-dark)';this.style.borderColor='var(--rule)';">
-      ⏻ Sign out
-    </button>
-  </div>
+  <div class="sidebar-header">CogAT Vocabulary</div>
   <div id="sidebarProfilePill" style="display:none;margin-bottom:14px;padding:10px 12px;background:linear-gradient(135deg,#fff5e6,#ffe7c2);border:1px solid var(--gold);border-radius:10px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <div id="sidebarAvatar" style="width:28px;height:28px;background:var(--gold);color:#fff;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:13px;flex-shrink:0;">?</div>
@@ -603,7 +595,6 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 
 <!-- ============================ ROOTS LIBRARY ============================ -->
 <div class="view" id="view-roots">
- 
   <div class="section-title">🌱 Word Roots & Word Families</div>
   <p class="muted" style="font-size:14px;margin-top:-4px;">Learning one root unlocks many words! Each card shows curated examples <strong>plus every matching word from your vocabulary</strong>. Click any word to see its definition.</p>
 
@@ -611,7 +602,8 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 
   <div id="rootsGrid" style="margin-top:14px;"></div>
 </div>
- <!-- ============================ PREFIXES ============================ -->
+
+<!-- ============================ PREFIXES ============================ -->
 <div class="view" id="view-prefixes">
   <div class="section-title">🔤 Prefixes — 100 Building Blocks</div>
   <p class="muted" style="font-size:14px;margin-top:-4px;">Prefixes attach to the front of a word and change its meaning. Each card shows curated examples <strong>plus every matching word from your vocabulary</strong>. Click any word for its definition.</p>
@@ -626,6 +618,7 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
   <input type="text" class="search-input" id="suffixSearch" placeholder="🔍 Search suffixes, meanings, or words..." oninput="renderSuffixes()" style="margin-top:14px;">
   <div id="suffixesGrid" style="margin-top:14px;"></div>
 </div>
+
 <!-- ============================ SENTENCE STUDIO ============================ -->
 <div class="view" id="view-sentence">
   <div class="section-title">✍️ Sentence Studio</div>
@@ -6257,10 +6250,131 @@ function hideResetConfirm(){var m=document.getElementById('resetConfirmModal');i
 
 
 // =================================================================
+// COGAT CURATED QUESTION BANKS (Grade 4 / Level 10)
+// =================================================================
+// Covers analogy relationships CogAT actually tests:
+// part:whole, whole:part, object:function, agent:action, agent:place,
+// category:member, member:category, object:material, cause:effect,
+// object:location, synonym, antonym, degree, animal:young, animal:home,
+// sequence, object:user
+const COGAT_ANALOGY_BANK = [
+  // Part : Whole
+  { prompt: 'petal : flower :: leaf : ___', answer: 'tree', wrongs: ['grass','root','stem'], rel: 'part : whole' },
+  { prompt: 'wheel : car :: wing : ___', answer: 'airplane', wrongs: ['engine','sky','pilot'], rel: 'part : whole' },
+  { prompt: 'finger : hand :: toe : ___', answer: 'foot', wrongs: ['leg','shoe','arm'], rel: 'part : whole' },
+  { prompt: 'page : book :: brick : ___', answer: 'wall', wrongs: ['house','floor','cement'], rel: 'part : whole' },
+  { prompt: 'word : sentence :: sentence : ___', answer: 'paragraph', wrongs: ['letter','story','page'], rel: 'part : whole' },
+  { prompt: 'key : keyboard :: string : ___', answer: 'guitar', wrongs: ['music','note','sound'], rel: 'part : whole' },
+  // Object : Function
+  { prompt: 'broom : sweep :: shovel : ___', answer: 'dig', wrongs: ['clean','build','lift'], rel: 'object : function' },
+  { prompt: 'camera : photograph :: pen : ___', answer: 'write', wrongs: ['ink','paper','draw'], rel: 'object : function' },
+  { prompt: 'knife : cut :: needle : ___', answer: 'sew', wrongs: ['thread','sharp','poke'], rel: 'object : function' },
+  { prompt: 'oven : bake :: freezer : ___', answer: 'freeze', wrongs: ['cold','food','store'], rel: 'object : function' },
+  { prompt: 'telescope : see :: microphone : ___', answer: 'hear', wrongs: ['sound','listen','speak'], rel: 'object : function' },
+  // Agent : Action
+  { prompt: 'chef : cook :: author : ___', answer: 'write', wrongs: ['read','book','story'], rel: 'agent : action' },
+  { prompt: 'teacher : teach :: doctor : ___', answer: 'heal', wrongs: ['sick','hospital','nurse'], rel: 'agent : action' },
+  { prompt: 'artist : paint :: composer : ___', answer: 'compose', wrongs: ['song','music','play'], rel: 'agent : action' },
+  { prompt: 'farmer : harvest :: baker : ___', answer: 'bake', wrongs: ['flour','oven','sell'], rel: 'agent : action' },
+  // Agent : Place
+  { prompt: 'chef : kitchen :: pilot : ___', answer: 'cockpit', wrongs: ['sky','plane','airport'], rel: 'agent : place' },
+  { prompt: 'judge : courtroom :: actor : ___', answer: 'stage', wrongs: ['script','audience','curtain'], rel: 'agent : place' },
+  { prompt: 'scientist : laboratory :: librarian : ___', answer: 'library', wrongs: ['book','shelf','study'], rel: 'agent : place' },
+  // Category : Member
+  { prompt: 'fruit : apple :: vegetable : ___', answer: 'carrot', wrongs: ['sweet','grow','red'], rel: 'category : member' },
+  { prompt: 'instrument : violin :: tool : ___', answer: 'hammer', wrongs: ['music','build','iron'], rel: 'category : member' },
+  { prompt: 'planet : Mars :: continent : ___', answer: 'Africa', wrongs: ['country','earth','ocean'], rel: 'category : member' },
+  { prompt: 'reptile : snake :: mammal : ___', answer: 'dog', wrongs: ['bird','fish','scaly'], rel: 'category : member' },
+  // Object : Material
+  { prompt: 'window : glass :: tire : ___', answer: 'rubber', wrongs: ['wheel','round','car'], rel: 'object : material' },
+  { prompt: 'shirt : cotton :: sweater : ___', answer: 'wool', wrongs: ['warm','knit','yarn'], rel: 'object : material' },
+  { prompt: 'jewelry : gold :: statue : ___', answer: 'marble', wrongs: ['museum','pretty','artist'], rel: 'object : material' },
+  // Cause : Effect
+  { prompt: 'rain : puddle :: fire : ___', answer: 'ash', wrongs: ['hot','flame','smoke'], rel: 'cause : effect' },
+  { prompt: 'sun : shadow :: cloud : ___', answer: 'rain', wrongs: ['sky','white','wind'], rel: 'cause : effect' },
+  { prompt: 'seed : plant :: egg : ___', answer: 'bird', wrongs: ['nest','shell','yolk'], rel: 'cause : effect' },
+  // Object : Location
+  { prompt: 'fish : ocean :: eagle : ___', answer: 'sky', wrongs: ['nest','tree','flight'], rel: 'object : location' },
+  { prompt: 'bear : forest :: camel : ___', answer: 'desert', wrongs: ['sand','hump','hot'], rel: 'object : location' },
+  { prompt: 'star : sky :: pearl : ___', answer: 'oyster', wrongs: ['ocean','white','round'], rel: 'object : location' },
+  // Degree of intensity
+  { prompt: 'warm : hot :: cool : ___', answer: 'cold', wrongs: ['freeze','ice','chilly'], rel: 'degree' },
+  { prompt: 'happy : ecstatic :: sad : ___', answer: 'devastated', wrongs: ['upset','cry','sorry'], rel: 'degree' },
+  { prompt: 'walk : run :: jog : ___', answer: 'sprint', wrongs: ['step','fast','race'], rel: 'degree' },
+  { prompt: 'giggle : laugh :: sniffle : ___', answer: 'sob', wrongs: ['tear','wet','cry'], rel: 'degree' },
+  // Animal : Young
+  { prompt: 'dog : puppy :: cat : ___', answer: 'kitten', wrongs: ['pet','fur','mouse'], rel: 'animal : young' },
+  { prompt: 'cow : calf :: horse : ___', answer: 'foal', wrongs: ['stallion','pony','saddle'], rel: 'animal : young' },
+  { prompt: 'sheep : lamb :: deer : ___', answer: 'fawn', wrongs: ['antler','forest','doe'], rel: 'animal : young' },
+  // Animal : Home
+  { prompt: 'bird : nest :: bee : ___', answer: 'hive', wrongs: ['honey','flower','sting'], rel: 'animal : home' },
+  { prompt: 'rabbit : burrow :: spider : ___', answer: 'web', wrongs: ['silk','tree','insect'], rel: 'animal : home' },
+  { prompt: 'fish : aquarium :: bird : ___', answer: 'cage', wrongs: ['sky','wing','feather'], rel: 'animal : home' },
+  // Sequence
+  { prompt: 'Monday : Tuesday :: June : ___', answer: 'July', wrongs: ['May','summer','month'], rel: 'sequence' },
+  { prompt: 'first : second :: fourth : ___', answer: 'fifth', wrongs: ['third','last','ordinal'], rel: 'sequence' },
+  { prompt: 'seedling : sapling :: sapling : ___', answer: 'tree', wrongs: ['grow','leaf','plant'], rel: 'sequence' },
+  // Synonym
+  { prompt: 'big : large :: happy : ___', answer: 'glad', wrongs: ['sad','small','fast'], rel: 'synonym' },
+  { prompt: 'begin : start :: finish : ___', answer: 'end', wrongs: ['stop','middle','continue'], rel: 'synonym' },
+  { prompt: 'brave : courageous :: smart : ___', answer: 'clever', wrongs: ['silly','strong','kind'], rel: 'synonym' },
+  // Antonym
+  { prompt: 'hot : cold :: day : ___', answer: 'night', wrongs: ['sun','warm','light'], rel: 'antonym' },
+  { prompt: 'loud : quiet :: brave : ___', answer: 'timid', wrongs: ['strong','fast','kind'], rel: 'antonym' },
+  { prompt: 'thick : thin :: heavy : ___', answer: 'light', wrongs: ['fat','big','hard'], rel: 'antonym' },
+  // Object : User
+  { prompt: 'baton : conductor :: gavel : ___', answer: 'judge', wrongs: ['music','wood','court'], rel: 'object : user' },
+  { prompt: 'stethoscope : doctor :: telescope : ___', answer: 'astronomer', wrongs: ['star','see','space'], rel: 'object : user' }
+];
+
+const COGAT_CLASSIFICATION_BANK = [
+  { belong: ['apple','banana','grape'], odd: 'carrot', category: 'fruits vs vegetable' },
+  { belong: ['dog','cat','hamster'], odd: 'fish', category: 'furry pets vs fish' },
+  { belong: ['triangle','square','pentagon'], odd: 'circle', category: 'shapes with straight sides vs curved' },
+  { belong: ['red','yellow','blue'], odd: 'green', category: 'primary colors' },
+  { belong: ['hammer','screwdriver','wrench'], odd: 'brush', category: 'tools vs painting supply' },
+  { belong: ['Monday','Wednesday','Friday'], odd: 'March', category: 'days vs month' },
+  { belong: ['rose','tulip','daisy'], odd: 'oak', category: 'flowers vs tree' },
+  { belong: ['violin','piano','guitar'], odd: 'radio', category: 'instruments vs device' },
+  { belong: ['lion','tiger','leopard'], odd: 'wolf', category: 'big cats vs canine' },
+  { belong: ['car','truck','motorcycle'], odd: 'canoe', category: 'road vehicles vs water' },
+  { belong: ['shirt','pants','jacket'], odd: 'necklace', category: 'clothing vs accessory' },
+  { belong: ['boil','fry','bake'], odd: 'chop', category: 'cooking with heat vs prep' },
+  { belong: ['sing','hum','whistle'], odd: 'clap', category: 'vocal sounds vs hand sound' },
+  { belong: ['run','jump','skip'], odd: 'sit', category: 'active movement vs still' },
+  { belong: ['book','magazine','newspaper'], odd: 'radio', category: 'read vs listen' },
+  { belong: ['north','south','east'], odd: 'up', category: 'compass directions vs vertical' },
+  { belong: ['happy','joyful','cheerful'], odd: 'angry', category: 'positive emotions vs negative' },
+  { belong: ['inch','foot','yard'], odd: 'pound', category: 'length vs weight' },
+  { belong: ['rain','snow','sleet'], odd: 'wind', category: 'precipitation vs air movement' },
+  { belong: ['Mercury','Venus','Mars'], odd: 'Moon', category: 'planets vs satellite' },
+  { belong: ['oak','pine','maple'], odd: 'grass', category: 'trees vs plant' },
+  { belong: ['salmon','trout','tuna'], odd: 'octopus', category: 'fish vs mollusk' },
+  { belong: ['eyes','ears','nose'], odd: 'elbow', category: 'face parts vs limb' },
+  { belong: ['pencil','pen','marker'], odd: 'eraser', category: 'writing tools vs correcting' },
+  { belong: ['whisper','murmur','mumble'], odd: 'shout', category: 'quiet speech vs loud' },
+  { belong: ['sprint','dash','race'], odd: 'stroll', category: 'fast running vs slow walk' },
+  { belong: ['brave','bold','fearless'], odd: 'timid', category: 'courage vs fear' },
+  { belong: ['gigantic','enormous','massive'], odd: 'tiny', category: 'very big vs very small' }
+];
+
+// =================================================================
 // COGAT PRACTICE MODES
 // =================================================================
 let practiceMode = null;
 let practiceState = { questions: [], idx: 0, correct: 0, mistakes: [], answered: false };
+
+// Only track weak-word for answers that are actually in the student's vocabulary.
+// Prevents non-vocab distractors (like "green", "spoon") from polluting weak-words.
+function _isVocab(word) {
+  if (!word || typeof word !== 'string') return false;
+  try {
+    if (!window.__vocabWordSet) {
+      window.__vocabWordSet = new Set((WORDS || []).map(w => w.word.toLowerCase()));
+    }
+    return window.__vocabWordSet.has(word.toLowerCase());
+  } catch(e) { return false; }
+}
 
 function shufflePractice(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -6292,12 +6406,28 @@ function generatePracticeQuestions(mode, n) {
     return shufflePractice([...a, ...c, ...cl]);
   }
   if (mode === 'analogy') {
+    // Draw ~70% from curated bank (diverse relationship types), ~30% synonym/antonym pairs
+    const bank = shufflePractice(COGAT_ANALOGY_BANK.slice());
+    const nCurated = Math.min(bank.length, Math.ceil(n * 0.7));
+    for (let i = 0; i < nCurated && out.length < n; i++) {
+      const item = bank[i];
+      const options = shufflePractice([item.answer, ...item.wrongs]);
+      out.push({
+        type: 'analogy',
+        prompt: item.prompt,
+        hint: 'Pattern: ' + item.rel,
+        options: options,
+        answer: item.answer,
+        wordToTrack: _isVocab(item.answer) ? item.answer : null
+      });
+    }
+    // Fallback: dynamic synonym/antonym analogies for remaining slots
     let attempts = 0;
     while (out.length < n && attempts < n * 10) {
       attempts++;
       const useAnt = Math.random() < 0.4;
       const pool = useAnt ? ANTONYMS : SYNONYMS;
-      if (pool.length < 4) continue;
+      if (pool.length < 4) break;
       const i1 = Math.floor(Math.random() * pool.length);
       let i2 = Math.floor(Math.random() * pool.length);
       if (i2 === i1) i2 = (i1 + 1) % pool.length;
@@ -6319,10 +6449,10 @@ function generatePracticeQuestions(mode, n) {
       out.push({
         type: 'analogy',
         prompt: A + ' : ' + B + ' :: ' + C + ' : ___',
-        hint: useAnt ? 'Pattern: ANTONYMS (opposites)' : 'Pattern: SYNONYMS (similar meanings)',
+        hint: useAnt ? 'Pattern: antonyms (opposites)' : 'Pattern: synonyms (similar meanings)',
         options: options,
         answer: D,
-        wordToTrack: D
+        wordToTrack: _isVocab(D) ? D : null
       });
     }
   } else if (mode === 'completion') {
@@ -6357,17 +6487,34 @@ function generatePracticeQuestions(mode, n) {
         options: options,
         answer: w.word,
         def: w.def,
-        wordToTrack: w.word
+        wordToTrack: w.word,
+        _completionLevel: w.level
       });
     }
   } else if (mode === 'classification') {
+    // Draw ~70% from curated categorical bank, ~30% from DEGREES fallback
+    const bank = shufflePractice(COGAT_CLASSIFICATION_BANK.slice());
+    const nCurated = Math.min(bank.length, Math.ceil(n * 0.7));
+    for (let i = 0; i < nCurated && out.length < n; i++) {
+      const item = bank[i];
+      const options = shufflePractice([item.belong[0], item.belong[1], item.belong[2], item.odd]);
+      out.push({
+        type: 'classification',
+        prompt: 'Which word does NOT belong with the others?',
+        hint: 'Three words share a category; one is from a different group',
+        options: options,
+        answer: item.odd,
+        category: item.category,
+        wordToTrack: _isVocab(item.odd) ? item.odd : null
+      });
+    }
+    // Fallback: DEGREES-based questions for remaining slots
     let attempts = 0;
     while (out.length < n && attempts < n * 10) {
       attempts++;
       if (typeof DEGREES === 'undefined' || DEGREES.length < 4) break;
       const deg = DEGREES[Math.floor(Math.random() * DEGREES.length)];
       const correct3 = [deg[0], deg[1], deg[2]];
-      // Pick the odd one from a DIFFERENT category
       let odd = null;
       let safety = 0;
       while (!odd && safety < 50) {
@@ -6387,7 +6534,7 @@ function generatePracticeQuestions(mode, n) {
         options: options,
         answer: odd,
         category: deg[3] || 'related',
-        wordToTrack: odd
+        wordToTrack: _isVocab(odd) ? odd : null
       });
     }
   }
@@ -6426,6 +6573,13 @@ function answerPractice(btn, choice) {
   practiceState.answered = true;
   const q = practiceState.questions[practiceState.idx];
   const isCorrect = choice === q.answer;
+  // Feed the global accuracy/level counters (auto-syncs to backend via hookAnswerSync)
+  try {
+    if (typeof logAnswer === 'function') {
+      // Grade 4 CogAT ~ Level D. Completion carries its own level if known.
+      logAnswer(isCorrect, q._completionLevel || 'D');
+    }
+  } catch(e) {}
   if (isCorrect) {
     practiceState.correct++;
     btn.classList.add('correct');
@@ -6439,8 +6593,8 @@ function answerPractice(btn, choice) {
     document.getElementById('practice-feedback').className = 'practice-feedback wrong';
     document.getElementById('practice-feedback').innerHTML = '✗ The answer was <strong>' + q.answer + '</strong>' + (q.def ? '. ' + q.def : '');
     practiceState.mistakes.push(q);
-    // Track weak word
-    if (q.wordToTrack) trackWeakWord(q.wordToTrack);
+    // Track weak word only if it's actually a vocab word (skip distractors like "green", "spoon")
+    if (q.wordToTrack && typeof trackWeakWord === 'function') trackWeakWord(q.wordToTrack);
   }
   document.getElementById('practice-opts').querySelectorAll('button').forEach(b => b.disabled = true);
   document.getElementById('practice-next').style.display = 'inline-block';
@@ -6458,6 +6612,18 @@ function nextPractice() {
 
 function showPracticeResults() {
   try { if (typeof logPracticeSession === 'function') logPracticeSession(practiceMode, practiceState.correct, practiceState.questions.length); } catch(e) {}
+  // Backend session sync: aggregate correct/incorrect into today's DailySession record
+  try {
+    if (typeof CURRENT_STUDENT_ID !== 'undefined' && CURRENT_STUDENT_ID && typeof syncToBackend === 'function' && typeof todayKey === 'function') {
+      const total = practiceState.questions.length;
+      const wrong = total - practiceState.correct;
+      syncToBackend('/api/students/' + CURRENT_STUDENT_ID + '/session/' + todayKey(), {
+        reviewed: total,
+        correct: practiceState.correct,
+        incorrect: wrong
+      });
+    }
+  } catch(e) { console.warn('[CogAT] session sync failed:', e); }
   document.getElementById('practice-question').style.display = 'none';
   const el = document.getElementById('practice-results');
   el.style.display = 'block';
@@ -11191,7 +11357,7 @@ function updateSidebarProfilePill() {
   } else {
     pill.style.display = 'none';
   }
-  if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();
+if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();																			 
 }
 
 // ==================== HEADER SIGN OUT ====================
@@ -11231,6 +11397,7 @@ function headerSignOut() {
     return;
   }
 }
+
 
 function switchStudentProfile() {
   if (!confirm('Switch to a different profile? Any unsaved changes will sync first.')) return;
@@ -11633,7 +11800,7 @@ async function teacherLogin() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     try { sessionStorage.setItem(TEACHER_TOKEN_KEY, data.token); } catch(e) {}
-	if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();
+	if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();																		
     document.getElementById('teacherLoginOverlay').style.display = 'none';
     openTeacherDash();
   } catch(e) {

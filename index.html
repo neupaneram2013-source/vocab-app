@@ -560,32 +560,39 @@ h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: var(--teal-dark); }
 <!-- ============================ COGAT PRACTICE ============================ -->
 <div class="view" id="view-practice">
   <div class="section-title">🎓 CogAT-Style Practice</div>
-  <p class="muted" style="font-size:14px;margin-top:-4px;">Practice the three question types you will see on the CogAT Verbal Battery. Each session is 20 questions.</p>
+  <p class="muted" style="font-size:14px;margin-top:-4px;">Practice the three question types you will see on the CogAT Verbal Battery. Regular sessions are 20 questions; the full simulation is 60.</p>
 
   <div id="practice-menu" style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
+    <div id="practice-focus-card"></div>
     <div class="word-card shown" style="cursor:pointer;border:2px solid var(--teal-light);" onclick="startPractice('analogy')">
       <div class="word" style="font-size:20px;">🔀 Verbal Analogies</div>
       <div class="pos">FORMAT: A : B :: C : ?</div>
-      <div style="margin-top:8px;font-size:13px;">Practice "happy is to joyful as cold is to ___?" style questions. Pulls from 70+ synonym pairs, 60+ antonym pairs, and 700+ degree-of-intensity chains.</div>
+      <div style="margin-top:8px;font-size:13px;">Practice "happy is to joyful as cold is to ___?" style questions. Curated bank covers 17 relationship types (part:whole, cause:effect, degree, animal:young, and more).</div>
       <div style="margin-top:10px;"><span class="tier-badge">CogAT-CORE</span></div>
     </div>
     <div class="word-card shown" style="cursor:pointer;border:2px solid var(--gold);" onclick="startPractice('completion')">
       <div class="word" style="font-size:20px;">✏️ Sentence Completion</div>
       <div class="pos">FORMAT: Fill in the blank</div>
-      <div style="margin-top:8px;font-size:13px;">Read a sentence with a missing word, choose the best fit from 4 options. Tests contextual understanding of vocabulary.</div>
+      <div style="margin-top:8px;font-size:13px;">Read a sentence with a missing word, choose the best fit from 4 options. Rotates through 5 CogAT sentence frames: cause-effect, contrast, degree, sequence, and definitional.</div>
       <div style="margin-top:10px;"><span class="tier-badge cls">CogAT-CORE</span></div>
     </div>
     <div class="word-card shown" style="cursor:pointer;border:2px solid #a87faf;" onclick="startPractice('classification')">
       <div class="word" style="font-size:20px;">🎯 Verbal Classification</div>
-      <div class="pos">FORMAT: Which doesn\'t belong?</div>
-      <div style="margin-top:8px;font-size:13px;">Find the word that\'s different. Three words share a relationship; one is the odd one out. Tests categorization skills.</div>
+      <div class="pos">FORMAT: Which word belongs?</div>
+      <div style="margin-top:8px;font-size:13px;">Three words share a specific trait. Find the fourth that belongs with them. Tests category recognition — the CogAT-authentic version of this question type.</div>
       <div style="margin-top:10px;"><span class="tier-badge rel">CogAT-CORE</span></div>
     </div>
     <div class="word-card shown" style="cursor:pointer;border:2px solid #c0392b;background:#fff5f0;" onclick="startPractice('mixed')">
       <div class="word" style="font-size:20px;">🏆 Mixed Challenge</div>
-      <div class="pos">FORMAT: All three types</div>
-      <div style="margin-top:8px;font-size:13px;">The closest simulation of the real CogAT test. 20 mixed questions across all three formats. Recommended weekly!</div>
+      <div class="pos">FORMAT: All three types · 20 questions</div>
+      <div style="margin-top:8px;font-size:13px;">20 mixed questions across all three formats, sorted easy→hard. Great mid-week check-in.</div>
       <div style="margin-top:10px;"><span class="tier-badge" style="background:#c0392b;">CHALLENGE</span></div>
+    </div>
+    <div class="word-card shown" style="cursor:pointer;border:2px solid #1e6091;background:#eef4f9;" onclick="startPractice('simulation')">
+      <div class="word" style="font-size:20px;">📝 Full Verbal Battery Simulation</div>
+      <div class="pos">FORMAT: 60 questions · 20 per section · sections in test order</div>
+      <div style="margin-top:8px;font-size:13px;">The closest thing to sitting the real CogAT Verbal Battery: 20 analogies, then 20 completions, then 20 classifications. Best done once a week as a benchmark. Report card at the end shows per-section scores.</div>
+      <div style="margin-top:10px;"><span class="tier-badge" style="background:#1e6091;">FULL SIMULATION</span></div>
     </div>
   </div>
 
@@ -6258,111 +6265,187 @@ function hideResetConfirm(){var m=document.getElementById('resetConfirmModal');i
 // object:location, synonym, antonym, degree, animal:young, animal:home,
 // sequence, object:user
 const COGAT_ANALOGY_BANK = [
-  // Part : Whole
-  { prompt: 'petal : flower :: leaf : ___', answer: 'tree', wrongs: ['grass','root','stem'], rel: 'part : whole' },
-  { prompt: 'wheel : car :: wing : ___', answer: 'airplane', wrongs: ['engine','sky','pilot'], rel: 'part : whole' },
-  { prompt: 'finger : hand :: toe : ___', answer: 'foot', wrongs: ['leg','shoe','arm'], rel: 'part : whole' },
-  { prompt: 'page : book :: brick : ___', answer: 'wall', wrongs: ['house','floor','cement'], rel: 'part : whole' },
-  { prompt: 'word : sentence :: sentence : ___', answer: 'paragraph', wrongs: ['letter','story','page'], rel: 'part : whole' },
-  { prompt: 'key : keyboard :: string : ___', answer: 'guitar', wrongs: ['music','note','sound'], rel: 'part : whole' },
-  // Object : Function
-  { prompt: 'broom : sweep :: shovel : ___', answer: 'dig', wrongs: ['clean','build','lift'], rel: 'object : function' },
-  { prompt: 'camera : photograph :: pen : ___', answer: 'write', wrongs: ['ink','paper','draw'], rel: 'object : function' },
-  { prompt: 'knife : cut :: needle : ___', answer: 'sew', wrongs: ['thread','sharp','poke'], rel: 'object : function' },
-  { prompt: 'oven : bake :: freezer : ___', answer: 'freeze', wrongs: ['cold','food','store'], rel: 'object : function' },
-  { prompt: 'telescope : see :: microphone : ___', answer: 'hear', wrongs: ['sound','listen','speak'], rel: 'object : function' },
-  // Agent : Action
-  { prompt: 'chef : cook :: author : ___', answer: 'write', wrongs: ['read','book','story'], rel: 'agent : action' },
-  { prompt: 'teacher : teach :: doctor : ___', answer: 'heal', wrongs: ['sick','hospital','nurse'], rel: 'agent : action' },
-  { prompt: 'artist : paint :: composer : ___', answer: 'compose', wrongs: ['song','music','play'], rel: 'agent : action' },
-  { prompt: 'farmer : harvest :: baker : ___', answer: 'bake', wrongs: ['flour','oven','sell'], rel: 'agent : action' },
+  // Part : Whole  — distractors: reversed direction, too-broad category, mere attribute
+  { prompt: 'petal : flower :: leaf : ___', answer: 'tree', wrongs: ['branch','plant','green'], rel: 'part : whole', explain: 'A petal is a small part of a flower. A leaf is a small part of a tree. "Branch" is also part of a tree, but a leaf is not part of a branch in the same way a petal is part of a flower.' },
+  { prompt: 'wheel : car :: wing : ___', answer: 'airplane', wrongs: ['feather','flight','engine'], rel: 'part : whole', explain: 'A wheel is a part that lets a car move. A wing is a part that lets an airplane move. "Feather" is a part of a wing, not the whole that has a wing.' },
+  { prompt: 'finger : hand :: toe : ___', answer: 'foot', wrongs: ['sock','nail','walk'], rel: 'part : whole', explain: 'A finger is a part of a hand. A toe is a part of a foot. "Nail" is part of a toe, not the whole that contains it.' },
+  { prompt: 'page : book :: brick : ___', answer: 'wall', wrongs: ['cement','builder','heavy'], rel: 'part : whole', explain: 'A page is one unit that makes up a book. A brick is one unit that makes up a wall. "Cement" holds bricks together but is not the whole they form.' },
+  { prompt: 'word : sentence :: sentence : ___', answer: 'paragraph', wrongs: ['letter','punctuation','meaning'], rel: 'part : whole', explain: 'Words combine to form a sentence. Sentences combine to form a paragraph. "Letter" is smaller than a word, going the wrong direction.' },
+  { prompt: 'key : keyboard :: string : ___', answer: 'guitar', wrongs: ['sound','pluck','music'], rel: 'part : whole', explain: 'A keyboard has many keys arranged together. A guitar has multiple strings arranged together. "Sound" is what strings produce, not the whole they belong to.' },
+  // Object : Function  — distractors: object of action, location, part of tool
+  { prompt: 'broom : sweep :: shovel : ___', answer: 'dig', wrongs: ['dirt','garden','handle'], rel: 'object : function', explain: 'A broom is used to sweep. A shovel is used to dig. "Dirt" is what you dig, not what the shovel does.' },
+  { prompt: 'camera : photograph :: pen : ___', answer: 'write', wrongs: ['ink','paper','draw'], rel: 'object : function', explain: 'A camera is used to photograph. A pen is used to write. "Ink" is what a pen contains, not the action.' },
+  { prompt: 'knife : cut :: needle : ___', answer: 'sew', wrongs: ['thread','sharp','fabric'], rel: 'object : function', explain: 'A knife is used to cut. A needle is used to sew. "Thread" is what the needle carries, not the action.' },
+  { prompt: 'oven : bake :: freezer : ___', answer: 'freeze', wrongs: ['ice','cold','store'], rel: 'object : function', explain: 'An oven bakes using heat. A freezer freezes using cold. "Cold" describes the freezer, not what it does.' },
+  { prompt: 'telescope : see :: microphone : ___', answer: 'hear', wrongs: ['speak','sound','loud'], rel: 'object : function', explain: 'A telescope helps you see distant things. A microphone helps you hear amplified sounds. "Speak" is what a person does into a microphone, not what the microphone itself does.' },
+  // Agent : Action  — distractors: reversed role, product, tool
+  { prompt: 'chef : cook :: author : ___', answer: 'write', wrongs: ['read','book','story'], rel: 'agent : action', explain: 'A chef does the action of cooking. An author does the action of writing. "Read" is what someone else does with the author\u2019s work.' },
+  { prompt: 'teacher : teach :: doctor : ___', answer: 'heal', wrongs: ['sick','patient','stethoscope'], rel: 'agent : action', explain: 'A teacher does the action of teaching. A doctor does the action of healing. "Patient" is the receiver, not the action.' },
+  { prompt: 'artist : paint :: composer : ___', answer: 'compose', wrongs: ['listen','song','piano'], rel: 'agent : action', explain: 'An artist does the action of painting. A composer does the action of composing. "Listen" is what an audience does, not the composer.' },
+  { prompt: 'farmer : harvest :: baker : ___', answer: 'bake', wrongs: ['eat','bread','oven'], rel: 'agent : action', explain: 'A farmer performs harvesting. A baker performs baking. "Bread" is the product; "eat" is what customers do.' },
   // Agent : Place
-  { prompt: 'chef : kitchen :: pilot : ___', answer: 'cockpit', wrongs: ['sky','plane','airport'], rel: 'agent : place' },
-  { prompt: 'judge : courtroom :: actor : ___', answer: 'stage', wrongs: ['script','audience','curtain'], rel: 'agent : place' },
-  { prompt: 'scientist : laboratory :: librarian : ___', answer: 'library', wrongs: ['book','shelf','study'], rel: 'agent : place' },
+  { prompt: 'chef : kitchen :: pilot : ___', answer: 'cockpit', wrongs: ['runway','uniform','passenger'], rel: 'agent : place', explain: 'A chef works in the kitchen. A pilot works in the cockpit. "Runway" is where the plane takes off, not where the pilot sits and works.' },
+  { prompt: 'judge : courtroom :: actor : ___', answer: 'stage', wrongs: ['script','audience','director'], rel: 'agent : place', explain: 'A judge works in a courtroom. An actor works on a stage. "Script" is the actor\u2019s tool; "audience" is who watches.' },
+  { prompt: 'scientist : laboratory :: librarian : ___', answer: 'library', wrongs: ['book','reader','computer'], rel: 'agent : place', explain: 'A scientist\u2019s workplace is a laboratory. A librarian\u2019s workplace is a library. "Book" is the librarian\u2019s tool, not the place.' },
   // Category : Member
-  { prompt: 'fruit : apple :: vegetable : ___', answer: 'carrot', wrongs: ['sweet','grow','red'], rel: 'category : member' },
-  { prompt: 'instrument : violin :: tool : ___', answer: 'hammer', wrongs: ['music','build','iron'], rel: 'category : member' },
-  { prompt: 'planet : Mars :: continent : ___', answer: 'Africa', wrongs: ['country','earth','ocean'], rel: 'category : member' },
-  { prompt: 'reptile : snake :: mammal : ___', answer: 'dog', wrongs: ['bird','fish','scaly'], rel: 'category : member' },
+  { prompt: 'fruit : apple :: vegetable : ___', answer: 'carrot', wrongs: ['salad','grow','orange'], rel: 'category : member', explain: 'Apple is a specific example of fruit. Carrot is a specific example of vegetable. "Orange" is a fruit, not a vegetable.' },
+  { prompt: 'instrument : violin :: tool : ___', answer: 'hammer', wrongs: ['music','build','carpenter'], rel: 'category : member', explain: 'Violin is a specific instrument. Hammer is a specific tool. "Build" is what tools help you do; not itself a tool.' },
+  { prompt: 'planet : Mars :: continent : ___', answer: 'Africa', wrongs: ['country','ocean','Earth'], rel: 'category : member', explain: 'Mars is one planet in the solar system. Africa is one continent on Earth. "Country" is a category, not a continent.' },
+  { prompt: 'reptile : snake :: mammal : ___', answer: 'dog', wrongs: ['scaly','lizard','fur'], rel: 'category : member', explain: 'Snake is a member of the reptile category. Dog is a member of the mammal category. "Lizard" is another reptile, not a mammal.' },
   // Object : Material
-  { prompt: 'window : glass :: tire : ___', answer: 'rubber', wrongs: ['wheel','round','car'], rel: 'object : material' },
-  { prompt: 'shirt : cotton :: sweater : ___', answer: 'wool', wrongs: ['warm','knit','yarn'], rel: 'object : material' },
-  { prompt: 'jewelry : gold :: statue : ___', answer: 'marble', wrongs: ['museum','pretty','artist'], rel: 'object : material' },
+  { prompt: 'window : glass :: tire : ___', answer: 'rubber', wrongs: ['round','car','driver'], rel: 'object : material', explain: 'A window is made of glass. A tire is made of rubber. "Round" describes the tire\u2019s shape, not what it\u2019s made of.' },
+  { prompt: 'shirt : cotton :: sweater : ___', answer: 'wool', wrongs: ['warm','winter','knit'], rel: 'object : material', explain: 'A shirt is often made of cotton. A sweater is often made of wool. "Warm" is a property; "knit" is a technique.' },
+  { prompt: 'jewelry : gold :: statue : ___', answer: 'marble', wrongs: ['museum','artist','shiny'], rel: 'object : material', explain: 'Jewelry can be made of gold. A statue can be made of marble. "Museum" is where statues live, not what they\u2019re made of.' },
   // Cause : Effect
-  { prompt: 'rain : puddle :: fire : ___', answer: 'ash', wrongs: ['hot','flame','smoke'], rel: 'cause : effect' },
-  { prompt: 'sun : shadow :: cloud : ___', answer: 'rain', wrongs: ['sky','white','wind'], rel: 'cause : effect' },
-  { prompt: 'seed : plant :: egg : ___', answer: 'bird', wrongs: ['nest','shell','yolk'], rel: 'cause : effect' },
+  { prompt: 'rain : puddle :: fire : ___', answer: 'ash', wrongs: ['heat','match','burn'], rel: 'cause : effect', explain: 'Rain leaves behind puddles. Fire leaves behind ash. "Match" causes fire, going the wrong direction; "heat" is a property of fire.' },
+  { prompt: 'sun : shadow :: cloud : ___', answer: 'rain', wrongs: ['sky','white','wind'], rel: 'cause : effect', explain: 'The sun causes shadows. Clouds cause rain. "Sky" is where both live; "white" is a color of clouds, not what they produce.' },
+  { prompt: 'seed : plant :: egg : ___', answer: 'bird', wrongs: ['nest','yolk','shell'], rel: 'cause : effect', explain: 'A seed grows into a plant. An egg grows into a bird. "Yolk" and "shell" are parts of the egg, not what it becomes.' },
   // Object : Location
-  { prompt: 'fish : ocean :: eagle : ___', answer: 'sky', wrongs: ['nest','tree','flight'], rel: 'object : location' },
-  { prompt: 'bear : forest :: camel : ___', answer: 'desert', wrongs: ['sand','hump','hot'], rel: 'object : location' },
-  { prompt: 'star : sky :: pearl : ___', answer: 'oyster', wrongs: ['ocean','white','round'], rel: 'object : location' },
+  { prompt: 'fish : ocean :: eagle : ___', answer: 'sky', wrongs: ['nest','feather','fly'], rel: 'object : location', explain: 'A fish lives in the ocean. An eagle lives in the sky. "Nest" is where an eagle rests, not where it soars.' },
+  { prompt: 'bear : forest :: camel : ___', answer: 'desert', wrongs: ['sand','hump','hot'], rel: 'object : location', explain: 'A bear\u2019s habitat is the forest. A camel\u2019s habitat is the desert. "Sand" is what the desert contains; "hump" is a body part.' },
+  { prompt: 'star : sky :: pearl : ___', answer: 'oyster', wrongs: ['ocean','white','round'], rel: 'object : location', explain: 'A star is found in the sky. A pearl is found inside an oyster. "Ocean" is where the oyster lives, one step too removed.' },
   // Degree of intensity
-  { prompt: 'warm : hot :: cool : ___', answer: 'cold', wrongs: ['freeze','ice','chilly'], rel: 'degree' },
-  { prompt: 'happy : ecstatic :: sad : ___', answer: 'devastated', wrongs: ['upset','cry','sorry'], rel: 'degree' },
-  { prompt: 'walk : run :: jog : ___', answer: 'sprint', wrongs: ['step','fast','race'], rel: 'degree' },
-  { prompt: 'giggle : laugh :: sniffle : ___', answer: 'sob', wrongs: ['tear','wet','cry'], rel: 'degree' },
+  { prompt: 'warm : hot :: cool : ___', answer: 'cold', wrongs: ['chilly','freeze','ice'], rel: 'degree', explain: 'Hot is a stronger version of warm. Cold is a stronger version of cool. "Chilly" is roughly equal to cool, not stronger; "freeze" is a verb.' },
+  { prompt: 'happy : ecstatic :: sad : ___', answer: 'devastated', wrongs: ['upset','sorrow','cry'], rel: 'degree', explain: 'Ecstatic is extreme happiness. Devastated is extreme sadness. "Upset" is about equal to sad, not stronger.' },
+  { prompt: 'walk : run :: jog : ___', answer: 'sprint', wrongs: ['step','pace','race'], rel: 'degree', explain: 'Running is faster than walking. Sprinting is faster than jogging. "Race" is an event, not a speed.' },
+  { prompt: 'giggle : laugh :: sniffle : ___', answer: 'sob', wrongs: ['smile','tear','sad'], rel: 'degree', explain: 'A laugh is stronger than a giggle. A sob is stronger than a sniffle. "Tear" is what falls when you sob, not the stronger action.' },
   // Animal : Young
-  { prompt: 'dog : puppy :: cat : ___', answer: 'kitten', wrongs: ['pet','fur','mouse'], rel: 'animal : young' },
-  { prompt: 'cow : calf :: horse : ___', answer: 'foal', wrongs: ['stallion','pony','saddle'], rel: 'animal : young' },
-  { prompt: 'sheep : lamb :: deer : ___', answer: 'fawn', wrongs: ['antler','forest','doe'], rel: 'animal : young' },
+  { prompt: 'dog : puppy :: cat : ___', answer: 'kitten', wrongs: ['cub','pet','mouse'], rel: 'animal : young', explain: 'A puppy is a young dog. A kitten is a young cat. "Cub" is the young of a bear or lion, not a cat.' },
+  { prompt: 'cow : calf :: horse : ___', answer: 'foal', wrongs: ['pony','stallion','saddle'], rel: 'animal : young', explain: 'A calf is a young cow. A foal is a young horse. "Stallion" is an adult male horse; "pony" is a small breed, not specifically a young horse.' },
+  { prompt: 'sheep : lamb :: deer : ___', answer: 'fawn', wrongs: ['doe','antler','forest'], rel: 'animal : young', explain: 'A lamb is a young sheep. A fawn is a young deer. "Doe" is an adult female deer, not a young one.' },
   // Animal : Home
-  { prompt: 'bird : nest :: bee : ___', answer: 'hive', wrongs: ['honey','flower','sting'], rel: 'animal : home' },
-  { prompt: 'rabbit : burrow :: spider : ___', answer: 'web', wrongs: ['silk','tree','insect'], rel: 'animal : home' },
-  { prompt: 'fish : aquarium :: bird : ___', answer: 'cage', wrongs: ['sky','wing','feather'], rel: 'animal : home' },
+  { prompt: 'bird : nest :: bee : ___', answer: 'hive', wrongs: ['honey','flower','sting'], rel: 'animal : home', explain: 'A bird lives in a nest. A bee lives in a hive. "Honey" is what bees make, not where they live; "flower" is where they gather nectar.' },
+  { prompt: 'rabbit : burrow :: spider : ___', answer: 'web', wrongs: ['silk','tree','insect'], rel: 'animal : home', explain: 'A rabbit lives in a burrow. A spider lives on its web. "Silk" is what the web is made of; "insect" is prey.' },
+  { prompt: 'fish : aquarium :: bird : ___', answer: 'cage', wrongs: ['sky','wing','feed'], rel: 'animal : home', explain: 'An aquarium is a container for keeping a fish. A cage is a container for keeping a pet bird. "Sky" is a wild bird\u2019s habitat, not a home you provide.' },
   // Sequence
-  { prompt: 'Monday : Tuesday :: June : ___', answer: 'July', wrongs: ['May','summer','month'], rel: 'sequence' },
-  { prompt: 'first : second :: fourth : ___', answer: 'fifth', wrongs: ['third','last','ordinal'], rel: 'sequence' },
-  { prompt: 'seedling : sapling :: sapling : ___', answer: 'tree', wrongs: ['grow','leaf','plant'], rel: 'sequence' },
+  { prompt: 'Monday : Tuesday :: June : ___', answer: 'July', wrongs: ['May','summer','month'], rel: 'sequence', explain: 'Tuesday comes right after Monday. July comes right after June. "May" comes before June, going backward.' },
+  { prompt: 'first : second :: fourth : ___', answer: 'fifth', wrongs: ['third','last','ordinal'], rel: 'sequence', explain: 'Second comes right after first. Fifth comes right after fourth. "Third" comes before fourth, going backward.' },
+  { prompt: 'seedling : sapling :: sapling : ___', answer: 'tree', wrongs: ['seed','plant','forest'], rel: 'sequence', explain: 'A seedling grows into a sapling. A sapling grows into a tree. "Seed" is earlier in the sequence.' },
   // Synonym
-  { prompt: 'big : large :: happy : ___', answer: 'glad', wrongs: ['sad','small','fast'], rel: 'synonym' },
-  { prompt: 'begin : start :: finish : ___', answer: 'end', wrongs: ['stop','middle','continue'], rel: 'synonym' },
-  { prompt: 'brave : courageous :: smart : ___', answer: 'clever', wrongs: ['silly','strong','kind'], rel: 'synonym' },
+  { prompt: 'big : large :: happy : ___', answer: 'glad', wrongs: ['sad','excited','smile'], rel: 'synonym', explain: 'Big and large mean the same thing. Happy and glad mean the same thing. "Excited" is related but stronger; "smile" is what happy people do.' },
+  { prompt: 'begin : start :: finish : ___', answer: 'end', wrongs: ['stop','middle','continue'], rel: 'synonym', explain: 'Begin and start are synonyms. Finish and end are synonyms. "Stop" can mean pause without finishing; "continue" is the opposite.' },
+  { prompt: 'brave : courageous :: smart : ___', answer: 'clever', wrongs: ['strong','kind','silly'], rel: 'synonym', explain: 'Brave and courageous are synonyms. Smart and clever are synonyms. "Silly" is closer to the opposite; "strong" and "kind" are unrelated traits.' },
   // Antonym
-  { prompt: 'hot : cold :: day : ___', answer: 'night', wrongs: ['sun','warm','light'], rel: 'antonym' },
-  { prompt: 'loud : quiet :: brave : ___', answer: 'timid', wrongs: ['strong','fast','kind'], rel: 'antonym' },
-  { prompt: 'thick : thin :: heavy : ___', answer: 'light', wrongs: ['fat','big','hard'], rel: 'antonym' },
+  { prompt: 'hot : cold :: day : ___', answer: 'night', wrongs: ['dark','sun','morning'], rel: 'antonym', explain: 'Hot and cold are opposites. Day and night are opposites. "Dark" is a property of night, not the opposite of day; "morning" is a part of day.' },
+  { prompt: 'loud : quiet :: brave : ___', answer: 'timid', wrongs: ['bold','strong','fear'], rel: 'antonym', explain: 'Loud and quiet are opposites. Brave and timid are opposites. "Bold" is a synonym of brave, not its opposite; "fear" is what timid people feel.' },
+  { prompt: 'thick : thin :: heavy : ___', answer: 'light', wrongs: ['big','hard','weight'], rel: 'antonym', explain: 'Thick and thin are opposites. Heavy and light are opposites. "Big" is often related to heavy but not its opposite; "weight" is a measurement.' },
   // Object : User
-  { prompt: 'baton : conductor :: gavel : ___', answer: 'judge', wrongs: ['music','wood','court'], rel: 'object : user' },
-  { prompt: 'stethoscope : doctor :: telescope : ___', answer: 'astronomer', wrongs: ['star','see','space'], rel: 'object : user' }
+  { prompt: 'baton : conductor :: gavel : ___', answer: 'judge', wrongs: ['jury','wood','music'], rel: 'object : user', explain: 'A conductor uses a baton to lead an orchestra. A judge uses a gavel to lead a courtroom. "Jury" is in the courtroom but does not wield the gavel; "wood" is what the gavel is made of.' },
+  { prompt: 'stethoscope : doctor :: telescope : ___', answer: 'astronomer', wrongs: ['patient','star','glass'], rel: 'object : user', explain: 'A doctor uses a stethoscope. An astronomer uses a telescope. "Star" is what the astronomer views; "patient" belongs with the doctor pair.' }
+];
+
+// Difficulty tables (1 = easy, 2 = medium, 3 = hard)
+// Analogies use their relationship type; classifications use the first anchor as a key.
+const COGAT_DIFFICULTY_BY_REL = {
+  'synonym': 1, 'antonym': 1, 'animal : young': 1, 'animal : home': 1,
+  'part : whole': 2, 'category : member': 2, 'object : function': 2,
+  'agent : action': 2, 'agent : place': 2, 'object : location': 2, 'object : user': 2,
+  'degree': 3, 'cause : effect': 3, 'object : material': 3, 'sequence': 3
+};
+const COGAT_CLASSIFICATION_DIFFICULTY = {
+  'lion': 1, 'lemon': 1, 'drum': 1, 'violin': 1, 'Tuesday': 1, 'June': 1, 'snow': 1,
+  'carrot': 2, 'snake': 2, 'frog': 2, 'gold': 2, 'Asia': 2, 'lake': 2,
+  'joyful': 2, 'doctor': 2, 'painter': 2, 'bicycle': 2, 'boil': 2,
+  'triangle': 2, 'Mercury': 2,
+  'tornado': 3, 'terrified': 3, 'sprint': 3, 'tiny': 3, 'enormous': 3,
+  'shout': 3, 'whisper': 3, 'honest': 3
+};
+
+// ==================== SENTENCE COMPLETION BANK (Grade 4) ====================
+// Frames: cause_effect, contrast, degree, sequence, definitional
+// Each item embeds a syntactic frame that CogAT rotates through — session guarantees ≥1 per frame.
+const COGAT_COMPLETION_BANK = [
+  // CAUSE-EFFECT
+  { sentence: 'Because it had rained all night, the sidewalks were ___.', answer: 'wet', wrongs: ['dry','clean','warm'], frame: 'cause_effect', difficulty: 1, explain: '"Because" signals cause and effect. Rain causes surfaces to become wet.' },
+  { sentence: 'Since the alarm never rang, Sam was ___ for school.', answer: 'late', wrongs: ['early','tired','hungry'], frame: 'cause_effect', difficulty: 1, explain: '"Since" here means "because." No alarm → no wake-up → late arrival.' },
+  { sentence: 'The bridge collapsed because the flood had ___ its supports.', answer: 'weakened', wrongs: ['built','painted','measured'], frame: 'cause_effect', difficulty: 2, explain: 'The cause must lead to collapse. Only "weakened" fits — the other verbs don\u2019t cause damage.' },
+  { sentence: 'She wore a heavy coat because the wind was so ___ .', answer: 'bitter', wrongs: ['gentle','warm','pleasant'], frame: 'cause_effect', difficulty: 2, explain: 'A heavy coat is a response to unpleasant cold. "Bitter" means harshly cold.' },
+  // CONTRAST
+  { sentence: 'Although the sky was clear this morning, the forecast predicted ___ weather.', answer: 'stormy', wrongs: ['sunny','warm','fair'], frame: 'contrast', difficulty: 2, explain: '"Although" signals contrast. Clear sky contrasts with stormy weather.' },
+  { sentence: 'Despite being tiny, the puppy had a ___ appetite.', answer: 'enormous', wrongs: ['small','picky','normal'], frame: 'contrast', difficulty: 2, explain: '"Despite" signals contrast. Tiny body contrasts with an enormous appetite.' },
+  { sentence: 'The path looked easy at first, but it soon became ___ .', answer: 'steep', wrongs: ['smooth','flat','short'], frame: 'contrast', difficulty: 2, explain: '"But" signals contrast with "easy at first." Only "steep" is a hard-path opposite.' },
+  { sentence: 'Though he practiced for hours, his efforts were ___ .', answer: 'fruitless', wrongs: ['successful','rewarded','praised'], frame: 'contrast', difficulty: 3, explain: '"Though" signals contrast with the effort. "Fruitless" means the effort didn\u2019t pay off.' },
+  // DEGREE
+  { sentence: 'The music was so ___ that the windows rattled.', answer: 'loud', wrongs: ['soft','pleasant','strange'], frame: 'degree', difficulty: 1, explain: '"So ___ that" signals extreme degree. Only loud music rattles windows.' },
+  { sentence: 'The soup was so ___ that no one could finish it.', answer: 'scalding', wrongs: ['mild','tasty','cool'], frame: 'degree', difficulty: 2, explain: '"So ___ that" means the trait caused the effect. Scalding heat would stop people from eating.' },
+  { sentence: 'The lecture was so ___ that most students fell asleep.', answer: 'tedious', wrongs: ['brief','exciting','loud'], frame: 'degree', difficulty: 2, explain: '"So ___ that" links a strong trait to its effect. Tedious means dull enough to cause sleep.' },
+  { sentence: 'The mountain was so ___ that clouds hid its peak.', answer: 'towering', wrongs: ['small','round','wide'], frame: 'degree', difficulty: 2, explain: 'Only a towering (very tall) mountain would have clouds hiding its peak.' },
+  // SEQUENCE
+  { sentence: 'First she cracked the eggs; then she added the ___ to the bowl.', answer: 'flour', wrongs: ['plate','oven','recipe'], frame: 'sequence', difficulty: 1, explain: '"First… then…" signals sequence. After eggs, the next ingredient — flour — fits.' },
+  { sentence: 'After the storm ended, the sun ___ from behind the clouds.', answer: 'emerged', wrongs: ['hid','darkened','rained'], frame: 'sequence', difficulty: 2, explain: '"After" signals what happens next. Sun coming out follows a storm ending.' },
+  { sentence: 'He studied the map before he ___ on his journey.', answer: 'embarked', wrongs: ['finished','returned','rested'], frame: 'sequence', difficulty: 3, explain: '"Before" signals sequence. You study a map, then embark (start out).' },
+  { sentence: 'Once the paint dried, the artist added the ___ details.', answer: 'final', wrongs: ['first','wet','heavy'], frame: 'sequence', difficulty: 2, explain: '"Once ___ dried" means the last stage. Final details come last.' },
+  // DEFINITIONAL
+  { sentence: 'A person who takes care of animals in a zoo is called a ___.', answer: 'zookeeper', wrongs: ['guest','farmer','singer'], frame: 'definitional', difficulty: 1, explain: '"A person who ___" defines by role. Zookeeper is specifically that job.' },
+  { sentence: 'A machine that lifts heavy objects at a building site is a ___.', answer: 'crane', wrongs: ['drill','broom','hose'], frame: 'definitional', difficulty: 2, explain: '"A machine that ___" defines by function. Cranes lift heavy objects.' },
+  { sentence: 'Someone who is easily upset by criticism is ___.', answer: 'sensitive', wrongs: ['bold','calm','joyful'], frame: 'definitional', difficulty: 2, explain: '"Someone who ___" defines a trait. Sensitive people react strongly to criticism.' },
+  { sentence: 'A scientist who studies plants is called a ___.', answer: 'botanist', wrongs: ['biologist','zoologist','geologist'], frame: 'definitional', difficulty: 3, explain: 'Botanist specifically studies plants. Biologist studies life broadly; zoologist studies animals; geologist studies rocks.' }
 ];
 
 const COGAT_CLASSIFICATION_BANK = [
-  { belong: ['apple','banana','grape'], odd: 'carrot', category: 'fruits vs vegetable' },
-  { belong: ['dog','cat','hamster'], odd: 'fish', category: 'furry pets vs fish' },
-  { belong: ['triangle','square','pentagon'], odd: 'circle', category: 'shapes with straight sides vs curved' },
-  { belong: ['red','yellow','blue'], odd: 'green', category: 'primary colors' },
-  { belong: ['hammer','screwdriver','wrench'], odd: 'brush', category: 'tools vs painting supply' },
-  { belong: ['Monday','Wednesday','Friday'], odd: 'March', category: 'days vs month' },
-  { belong: ['rose','tulip','daisy'], odd: 'oak', category: 'flowers vs tree' },
-  { belong: ['violin','piano','guitar'], odd: 'radio', category: 'instruments vs device' },
-  { belong: ['lion','tiger','leopard'], odd: 'wolf', category: 'big cats vs canine' },
-  { belong: ['car','truck','motorcycle'], odd: 'canoe', category: 'road vehicles vs water' },
-  { belong: ['shirt','pants','jacket'], odd: 'necklace', category: 'clothing vs accessory' },
-  { belong: ['boil','fry','bake'], odd: 'chop', category: 'cooking with heat vs prep' },
-  { belong: ['sing','hum','whistle'], odd: 'clap', category: 'vocal sounds vs hand sound' },
-  { belong: ['run','jump','skip'], odd: 'sit', category: 'active movement vs still' },
-  { belong: ['book','magazine','newspaper'], odd: 'radio', category: 'read vs listen' },
-  { belong: ['north','south','east'], odd: 'up', category: 'compass directions vs vertical' },
-  { belong: ['happy','joyful','cheerful'], odd: 'angry', category: 'positive emotions vs negative' },
-  { belong: ['inch','foot','yard'], odd: 'pound', category: 'length vs weight' },
-  { belong: ['rain','snow','sleet'], odd: 'wind', category: 'precipitation vs air movement' },
-  { belong: ['Mercury','Venus','Mars'], odd: 'Moon', category: 'planets vs satellite' },
-  { belong: ['oak','pine','maple'], odd: 'grass', category: 'trees vs plant' },
-  { belong: ['salmon','trout','tuna'], odd: 'octopus', category: 'fish vs mollusk' },
-  { belong: ['eyes','ears','nose'], odd: 'elbow', category: 'face parts vs limb' },
-  { belong: ['pencil','pen','marker'], odd: 'eraser', category: 'writing tools vs correcting' },
-  { belong: ['whisper','murmur','mumble'], odd: 'shout', category: 'quiet speech vs loud' },
-  { belong: ['sprint','dash','race'], odd: 'stroll', category: 'fast running vs slow walk' },
-  { belong: ['brave','bold','fearless'], odd: 'timid', category: 'courage vs fear' },
-  { belong: ['gigantic','enormous','massive'], odd: 'tiny', category: 'very big vs very small' }
+  // Big cats vs canine / other predators
+  { anchors: ['lion','tiger','cheetah'], correct: 'leopard', wrongs: ['wolf','fox','bear'], explain: 'All are big cats in the Felidae family. Wolves, foxes, and bears are predators too, but not cats.' },
+  // Citrus fruits vs other fruits
+  { anchors: ['lemon','lime','grapefruit'], correct: 'orange', wrongs: ['apple','grape','banana'], explain: 'All are citrus fruits — tart, thick-skinned, and grown on citrus trees. Apples, grapes, and bananas are fruits but not citrus.' },
+  // Root vegetables vs other vegetables
+  { anchors: ['carrot','beet','radish'], correct: 'turnip', wrongs: ['lettuce','celery','spinach'], explain: 'All grow underground as roots. Lettuce, celery, and spinach grow above ground as leaves or stems.' },
+  // Percussion instruments vs other instruments
+  { anchors: ['drum','cymbal','tambourine'], correct: 'xylophone', wrongs: ['violin','flute','guitar'], explain: 'All are percussion instruments — played by striking. Violin, flute, and guitar make sound with strings or air.' },
+  // String instruments
+  { anchors: ['violin','cello','guitar'], correct: 'harp', wrongs: ['trumpet','drum','flute'], explain: 'All make sound from vibrating strings. Trumpet and flute use air; drum uses percussion.' },
+  // Reptiles vs other cold-blooded / vs mammals
+  { anchors: ['snake','lizard','turtle'], correct: 'crocodile', wrongs: ['frog','fish','otter'], explain: 'All are reptiles — scaly, cold-blooded, egg-laying vertebrates. Frogs are amphibians; fish live in water; otter is a mammal.' },
+  // Amphibians
+  { anchors: ['frog','toad','salamander'], correct: 'newt', wrongs: ['lizard','fish','turtle'], explain: 'All are amphibians — live part on land and part in water. Lizards and turtles are reptiles; fish live only in water.' },
+  // Precious metals
+  { anchors: ['gold','silver','platinum'], correct: 'copper', wrongs: ['plastic','wood','glass'], explain: 'All are metals. Plastic, wood, and glass are non-metals.' },
+  // Weekdays vs weekend
+  { anchors: ['Tuesday','Wednesday','Thursday'], correct: 'Monday', wrongs: ['Saturday','Sunday','week'], explain: 'All are weekdays (school days). Saturday and Sunday make up the weekend.' },
+  // Summer months
+  { anchors: ['June','July','August'], correct: 'May', wrongs: ['January','December','autumn'], explain: 'All fall in or near summer in the Northern Hemisphere. January and December are winter; autumn is a season, not a month.' },
+  // Continents
+  { anchors: ['Asia','Africa','Europe'], correct: 'Australia', wrongs: ['Egypt','Brazil','India'], explain: 'All are continents. Egypt, Brazil, and India are countries within continents.' },
+  // Bodies of water
+  { anchors: ['lake','pond','river'], correct: 'stream', wrongs: ['mountain','forest','desert'], explain: 'All are bodies of fresh water. Mountains, forests, and deserts are land features.' },
+  // Winter weather
+  { anchors: ['snow','sleet','hail'], correct: 'ice', wrongs: ['sun','breeze','rainbow'], explain: 'All are forms of frozen precipitation or frozen water. Sun, breeze, and rainbow are not frozen.' },
+  // Storm phenomena
+  { anchors: ['tornado','hurricane','cyclone'], correct: 'typhoon', wrongs: ['drizzle','sunshine','fog'], explain: 'All are violent rotating storms with strong winds. Drizzle, sunshine, and fog are calm weather conditions.' },
+  // Positive emotions (specific — joy, not general good feelings)
+  { anchors: ['joyful','delighted','cheerful'], correct: 'ecstatic', wrongs: ['angry','fearful','tired'], explain: 'All describe happiness. Angry, fearful, and tired describe different feelings.' },
+  // Words meaning "very afraid"
+  { anchors: ['terrified','petrified','horrified'], correct: 'frightened', wrongs: ['calm','peaceful','brave'], explain: 'All describe strong fear. Calm, peaceful, and brave describe the opposite state.' },
+  // Fast-movement verbs
+  { anchors: ['sprint','dash','race'], correct: 'gallop', wrongs: ['stroll','tiptoe','crawl'], explain: 'All mean to move very quickly. Stroll, tiptoe, and crawl describe slow movement.' },
+  // Words meaning "very small"
+  { anchors: ['tiny','minute','miniature'], correct: 'microscopic', wrongs: ['gigantic','huge','massive'], explain: 'All mean extremely small. Gigantic, huge, and massive mean the opposite.' },
+  // Words meaning "very large"
+  { anchors: ['enormous','gigantic','colossal'], correct: 'massive', wrongs: ['petite','slender','delicate'], explain: 'All mean extremely large. Petite, slender, and delicate suggest smallness or thinness.' },
+  // Occupations that heal / help medically
+  { anchors: ['doctor','nurse','surgeon'], correct: 'pharmacist', wrongs: ['pilot','farmer','architect'], explain: 'All work in medical care and healing. Pilot, farmer, and architect work in other fields.' },
+  // Occupations in the arts
+  { anchors: ['painter','sculptor','poet'], correct: 'musician', wrongs: ['plumber','lawyer','accountant'], explain: 'All create art or creative works. Plumber, lawyer, and accountant work in trade or business.' },
+  // Modes of transportation on land
+  { anchors: ['bicycle','motorcycle','scooter'], correct: 'skateboard', wrongs: ['helicopter','submarine','airplane'], explain: 'All are personal wheeled vehicles used on the ground. Helicopter and airplane fly; submarine goes underwater.' },
+  // Cooking with heat (verbs)
+  { anchors: ['boil','fry','roast'], correct: 'grill', wrongs: ['chop','peel','slice'], explain: 'All cook food with heat. Chop, peel, and slice are food-preparation steps that don\u2019t use heat.' },
+  // Loud sounds / verbs
+  { anchors: ['shout','yell','scream'], correct: 'holler', wrongs: ['whisper','murmur','mumble'], explain: 'All mean to make a loud vocal sound. Whisper, murmur, and mumble are quiet vocal sounds.' },
+  // Quiet sounds / verbs
+  { anchors: ['whisper','murmur','mumble'], correct: 'mutter', wrongs: ['bellow','roar','shriek'], explain: 'All mean to speak quietly. Bellow, roar, and shriek are very loud sounds.' },
+  // Positive qualities of character
+  { anchors: ['honest','kind','generous'], correct: 'trustworthy', wrongs: ['cruel','selfish','deceitful'], explain: 'All are positive character traits. Cruel, selfish, and deceitful are negative traits.' },
+  // Geometric shapes with straight sides
+  { anchors: ['triangle','square','pentagon'], correct: 'hexagon', wrongs: ['circle','oval','crescent'], explain: 'All are polygons with straight sides. Circle, oval, and crescent are curved shapes.' },
+  // Solar system inner planets (all rocky)
+  { anchors: ['Mercury','Venus','Mars'], correct: 'Earth', wrongs: ['Jupiter','Saturn','Neptune'], explain: 'All are rocky inner planets closest to the sun. Jupiter, Saturn, and Neptune are gas or ice giants farther out.' }
 ];
 
 // =================================================================
 // COGAT PRACTICE MODES
 // =================================================================
 let practiceMode = null;
-let practiceState = { questions: [], idx: 0, correct: 0, mistakes: [], answered: false };
+let practiceState = { questions: [], idx: 0, correct: 0, mistakes: [], answered: false, byTag: {} };
 
 // Only track weak-word for answers that are actually in the student's vocabulary.
 // Prevents non-vocab distractors (like "green", "spoon") from polluting weak-words.
@@ -6376,6 +6459,63 @@ function _isVocab(word) {
   } catch(e) { return false; }
 }
 
+// Return a short definition for a word if it's in the vocab, else empty string.
+// Used to enrich auto-generated explains ("perplexed (very confused) means the same as bewildered").
+function _defOf(word) {
+  if (!word || typeof word !== 'string') return '';
+  try {
+    if (!window.__vocabDefMap) {
+      window.__vocabDefMap = {};
+      (WORDS || []).forEach(w => { window.__vocabDefMap[w.word.toLowerCase()] = w.def || ''; });
+    }
+    const d = window.__vocabDefMap[word.toLowerCase()];
+    if (!d) return '';
+    // Truncate long defs to keep explain readable
+    const short = d.length > 60 ? d.slice(0, 57).trim() + '…' : d;
+    return short;
+  } catch(e) { return ''; }
+}
+
+// Wrap a word with its parenthesized definition when available: perplexed (very confused)
+function _wordWithDef(word) {
+  const d = _defOf(word);
+  return d ? word + ' (' + d + ')' : word;
+}
+
+// ==================== ANTI-REPETITION QUEUE ====================
+// Remembers the last N question IDs the student has seen (across sessions) so the
+// generator can skip them and produce fresh material instead of drilling the same items.
+const _COGAT_SEEN_KEY = 'cogat-seen-v1';
+const _COGAT_SEEN_MAX = 30;
+let _seenQueue = null;
+function _loadSeen() {
+  if (_seenQueue !== null) return _seenQueue;
+  try { _seenQueue = JSON.parse(localStorage.getItem(_COGAT_SEEN_KEY) || '[]'); }
+  catch(e) { _seenQueue = []; }
+  if (!Array.isArray(_seenQueue)) _seenQueue = [];
+  return _seenQueue;
+}
+function _saveSeen() {
+  try { localStorage.setItem(_COGAT_SEEN_KEY, JSON.stringify(_seenQueue || [])); } catch(e) {}
+}
+function _makeItemId(item) {
+  // Stable ID for curated items: prompt is unique per item
+  if (item.prompt) return 'A:' + item.prompt;
+  if (item.sentence) return 'C:' + item.sentence;
+  if (item.anchors) return 'X:' + item.anchors.join('|') + '=' + item.correct;
+  return null;
+}
+function _wasSeen(id) { return id && _loadSeen().indexOf(id) !== -1; }
+function _addSeen(id) {
+  if (!id) return;
+  const q = _loadSeen();
+  const at = q.indexOf(id);
+  if (at !== -1) q.splice(at, 1);
+  q.push(id);
+  while (q.length > _COGAT_SEEN_MAX) q.shift();
+  _saveSeen();
+}
+
 function shufflePractice(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -6386,9 +6526,46 @@ function shufflePractice(arr) {
 
 function escRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
+function renderPracticeFocusCard() {
+  const el = document.getElementById('practice-focus-card');
+  if (!el) return;
+  // Compute focus areas from lifetime pattern stats: <60% with ≥3 attempts, top 3 weakest
+  let stats = {};
+  try { stats = JSON.parse(localStorage.getItem('cogat-pattern-stats-v1') || '{}'); } catch(e) {}
+  const focus = Object.entries(stats)
+    .filter(([tag, s]) => s.total >= 3 && (s.correct / s.total) < 0.6)
+    .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+    .slice(0, 3);
+  if (focus.length === 0) { el.innerHTML = ''; window.__cogatFocusTags = []; return; }
+  window.__cogatFocusTags = focus.map(f => f[0]);
+  const tagList = focus.map(f => {
+    const pct = Math.round(f[1].correct / f[1].total * 100);
+    return '<span style="display:inline-block;background:#fff;color:var(--wrong);border:1px solid var(--wrong);border-radius:12px;padding:2px 10px;font-size:11px;font-weight:600;margin:2px 4px 2px 0;">' + f[0] + ' · ' + pct + '%</span>';
+  }).join('');
+  el.innerHTML =
+    '<div class="word-card shown" style="cursor:pointer;border:2px solid var(--wrong);background:linear-gradient(135deg,#fff5f0,#ffe7e0);" onclick="startPractice(\'weakness-drill\')">' +
+      '<div class="word" style="font-size:20px;">🎯 Focus Drill · Your weak spots</div>' +
+      '<div class="pos">FORMAT: 10 questions · targeted</div>' +
+      '<div style="margin-top:8px;font-size:13px;">Based on your last few sessions, these patterns need extra practice:</div>' +
+      '<div style="margin-top:8px;">' + tagList + '</div>' +
+      '<div style="margin-top:10px;"><span class="tier-badge" style="background:var(--wrong);">RECOMMENDED</span></div>' +
+    '</div>';
+}
+
 function startPractice(mode) {
   practiceMode = mode;
-  practiceState = { questions: generatePracticeQuestions(mode, 20), idx: 0, correct: 0, mistakes: [], answered: false };
+  // Simulation runs a full 60-question CogAT Verbal Battery; weakness drill runs 10; everything else stays at 20.
+  const size = mode === 'simulation' ? 60 : (mode === 'weakness-drill' ? 10 : 20);
+  const questions = generatePracticeQuestions(mode, size);
+  if (!questions || questions.length === 0) {
+    if (mode === 'weakness-drill') {
+      alert('No focus areas yet — practice a few sessions first, then focus drills will unlock.');
+    } else {
+      alert('Could not generate questions. Please try a different mode.');
+    }
+    return;
+  }
+  practiceState = { questions: questions, idx: 0, correct: 0, mistakes: [], answered: false, byTag: {} };
   window.__dailyExcludeMastered = false;
   document.getElementById('practice-menu').style.display = 'none';
   document.getElementById('practice-results').style.display = 'none';
@@ -6398,26 +6575,95 @@ function startPractice(mode) {
 
 function generatePracticeQuestions(mode, n) {
   const out = [];
+  if (mode === 'simulation') {
+    // Full-length CogAT Verbal Battery simulation: 20 of each type, preserved section order
+    const a = generatePracticeQuestions('analogy', 20);
+    const c = generatePracticeQuestions('completion', 20);
+    const cl = generatePracticeQuestions('classification', 20);
+    // Sort each section internally easy→hard, keep sections in test order
+    const sortSection = arr => arr
+      .map((q, i) => ({ q: q, i: i }))
+      .sort((x, y) => ((x.q.difficulty || 2) - (y.q.difficulty || 2)) || (x.i - y.i))
+      .map(x => x.q);
+    return [...sortSection(a), ...sortSection(c), ...sortSection(cl)];
+  }
+  if (mode === 'weakness-drill') {
+    // Draw questions tagged with the student's current focus areas (rel or frame tags)
+    const focusTags = (window.__cogatFocusTags || []).slice();
+    if (focusTags.length === 0) return [];
+    // Match analogy bank items by rel; completion bank by frame
+    const analogyItems = COGAT_ANALOGY_BANK.filter(item => focusTags.includes('Analogy · ' + item.rel));
+    const completionItems = COGAT_COMPLETION_BANK.filter(item => focusTags.includes('Completion · ' + item.frame.replace('_', '-')));
+    const pool = shufflePractice([...analogyItems.map(it => ({ src: 'analogy', it: it })), ...completionItems.map(it => ({ src: 'completion', it: it }))]);
+    pool.slice(0, n).forEach(entry => {
+      const item = entry.it;
+      _addSeen(_makeItemId(item));
+      if (entry.src === 'analogy') {
+        const options = shufflePractice([item.answer, ...item.wrongs]);
+        out.push({
+          type: 'analogy',
+          prompt: item.prompt,
+          hint: 'Pattern: ' + item.rel,
+          options: options,
+          answer: item.answer,
+          rel: item.rel,
+          explain: item.explain,
+          difficulty: COGAT_DIFFICULTY_BY_REL[item.rel] || 2,
+          wordToTrack: _isVocab(item.answer) ? item.answer : null
+        });
+      } else {
+        const options = shufflePractice([item.answer, ...item.wrongs]);
+        out.push({
+          type: 'completion',
+          prompt: item.sentence.replace(new RegExp('___'), '<u style="display:inline-block;min-width:80px;border-bottom:2px solid var(--teal);color:transparent;">_____</u>'),
+          hint: 'Frame: ' + item.frame.replace('_', '-'),
+          options: options,
+          answer: item.answer,
+          frame: item.frame,
+          explain: item.explain,
+          difficulty: item.difficulty || 2,
+          wordToTrack: _isVocab(item.answer) ? item.answer : null
+        });
+      }
+    });
+    return out
+      .map((q, i) => ({ q: q, i: i }))
+      .sort((a, b) => ((a.q.difficulty || 2) - (b.q.difficulty || 2)) || (a.i - b.i))
+      .map(x => x.q);
+  }
   if (mode === 'mixed') {
     // 7 analogies, 7 completions, 6 classifications
     const a = generatePracticeQuestions('analogy', 7);
     const c = generatePracticeQuestions('completion', 7);
     const cl = generatePracticeQuestions('classification', 6);
-    return shufflePractice([...a, ...c, ...cl]);
+    // Interleave but keep easy→hard progression
+    return [...a, ...c, ...cl]
+      .map((q, i) => ({ q: q, i: i }))
+      .sort((x, y) => ((x.q.difficulty || 2) - (y.q.difficulty || 2)) || (x.i - y.i))
+      .map(x => x.q);
   }
   if (mode === 'analogy') {
     // Draw ~70% from curated bank (diverse relationship types), ~30% synonym/antonym pairs
-    const bank = shufflePractice(COGAT_ANALOGY_BANK.slice());
-    const nCurated = Math.min(bank.length, Math.ceil(n * 0.7));
-    for (let i = 0; i < nCurated && out.length < n; i++) {
-      const item = bank[i];
+    // Skip items already seen recently so sessions feel fresh.
+    const bank = shufflePractice(COGAT_ANALOGY_BANK.slice()).filter(item => !_wasSeen(_makeItemId(item)));
+    const bankFallback = shufflePractice(COGAT_ANALOGY_BANK.slice()); // in case anti-repeat exhausts everything
+    const nCurated = Math.min(bank.length + bankFallback.length, Math.ceil(n * 0.7));
+    let bankPointer = 0;
+    for (let picked = 0; picked < nCurated && out.length < n; picked++) {
+      // Prefer unseen bank; fall back to full bank if unseen is empty
+      const item = bankPointer < bank.length ? bank[bankPointer++] : bankFallback[picked - bank.length];
+      if (!item) break;
       const options = shufflePractice([item.answer, ...item.wrongs]);
+      _addSeen(_makeItemId(item));
       out.push({
         type: 'analogy',
         prompt: item.prompt,
         hint: 'Pattern: ' + item.rel,
         options: options,
         answer: item.answer,
+        rel: item.rel,
+        explain: item.explain,
+        difficulty: COGAT_DIFFICULTY_BY_REL[item.rel] || 2,
         wordToTrack: _isVocab(item.answer) ? item.answer : null
       });
     }
@@ -6452,14 +6698,64 @@ function generatePracticeQuestions(mode, n) {
         hint: useAnt ? 'Pattern: antonyms (opposites)' : 'Pattern: synonyms (similar meanings)',
         options: options,
         answer: D,
+        rel: useAnt ? 'antonym' : 'synonym',
+        explain: useAnt
+          ? '"' + _wordWithDef(A) + '" and "' + _wordWithDef(B) + '" are opposites. In the same way, "' + _wordWithDef(C) + '" and "' + _wordWithDef(D) + '" are opposites.'
+          : '"' + _wordWithDef(A) + '" and "' + _wordWithDef(B) + '" mean the same thing. In the same way, "' + _wordWithDef(C) + '" and "' + _wordWithDef(D) + '" mean the same thing.',
+        difficulty: 1,
         wordToTrack: _isVocab(D) ? D : null
       });
     }
   } else if (mode === 'completion') {
+    // Pull curated items first, guaranteeing frame variety (≥1 per frame if space permits)
+    // Skip items already seen recently.
+    const FRAMES = ['cause_effect','contrast','degree','sequence','definitional'];
+    const byFrame = {};
+    FRAMES.forEach(f => byFrame[f] = shufflePractice(COGAT_COMPLETION_BANK.filter(x => x.frame === f && !_wasSeen(_makeItemId(x)))));
+    const byFrameAll = {}; // fallback if unseen frame is empty
+    FRAMES.forEach(f => byFrameAll[f] = shufflePractice(COGAT_COMPLETION_BANK.filter(x => x.frame === f)));
+    // Round-robin one item per frame until we have n items or all frames dry
+    const picked = [];
+    let round = 0;
+    while (picked.length < n && round < 20) {
+      let addedThisRound = false;
+      for (const f of FRAMES) {
+        if (picked.length >= n) break;
+        let src = byFrame[f].length > 0 ? byFrame[f] : byFrameAll[f];
+        if (src.length > 0) {
+          const item = src.shift();
+          // If we pulled from unseen list, also remove from all-list to avoid dup
+          if (byFrame[f].length === 0 && byFrameAll[f].length > 0) {
+            const idx = byFrameAll[f].findIndex(x => _makeItemId(x) === _makeItemId(item));
+            if (idx !== -1) byFrameAll[f].splice(idx, 1);
+          }
+          picked.push(item);
+          _addSeen(_makeItemId(item));
+          addedThisRound = true;
+        }
+      }
+      if (!addedThisRound) break;
+      round++;
+    }
+    picked.forEach(item => {
+      const options = shufflePractice([item.answer, ...item.wrongs]);
+      out.push({
+        type: 'completion',
+        prompt: item.sentence.replace(new RegExp('___'), '<u style="display:inline-block;min-width:80px;border-bottom:2px solid var(--teal);color:transparent;">_____</u>'),
+        hint: 'Frame: ' + item.frame.replace('_', '-'),
+        options: options,
+        answer: item.answer,
+        frame: item.frame,
+        explain: item.explain,
+        difficulty: item.difficulty || 2,
+        wordToTrack: _isVocab(item.answer) ? item.answer : null
+      });
+    });
+    // Fallback: fill remaining slots from vocab-defined sentences (frame = "definitional")
     let pool = WORDS.filter(w => w.sentence && w.def);
     if (window.__dailyExcludeMastered) {
       const unmastered = pool.filter(w => !masteredSet.has('w:' + w.word));
-      if (unmastered.length >= n * 2) pool = unmastered;
+      if (unmastered.length >= (n - out.length) * 2) pool = unmastered;
     }
     let attempts = 0;
     while (out.length < n && attempts < n * 20) {
@@ -6480,6 +6776,7 @@ function generatePracticeQuestions(mode, n) {
       }
       if (wrongs.length < 3) continue;
       const options = shufflePractice([w.word, ...wrongs]);
+      const levelDifficulty = { 'A': 1, 'B': 1, 'C': 2, 'D': 2, 'E': 3, 'F': 3, 'G': 3 }[w.level] || 2;
       out.push({
         type: 'completion',
         prompt: blanked,
@@ -6487,58 +6784,86 @@ function generatePracticeQuestions(mode, n) {
         options: options,
         answer: w.word,
         def: w.def,
+        frame: 'definitional',
+        explain: '"' + w.word + '" means: ' + w.def + '.',
+        difficulty: levelDifficulty,
         wordToTrack: w.word,
         _completionLevel: w.level
       });
     }
   } else if (mode === 'classification') {
-    // Draw ~70% from curated categorical bank, ~30% from DEGREES fallback
-    const bank = shufflePractice(COGAT_CLASSIFICATION_BANK.slice());
-    const nCurated = Math.min(bank.length, Math.ceil(n * 0.7));
-    for (let i = 0; i < nCurated && out.length < n; i++) {
-      const item = bank[i];
-      const options = shufflePractice([item.belong[0], item.belong[1], item.belong[2], item.odd]);
+    // Draw ~70% from curated categorical bank (BELONGS-with format), ~30% from DEGREES fallback
+    // Skip items already seen recently.
+    const bank = shufflePractice(COGAT_CLASSIFICATION_BANK.slice()).filter(item => !_wasSeen(_makeItemId(item)));
+    const bankFallback = shufflePractice(COGAT_CLASSIFICATION_BANK.slice());
+    const nCurated = Math.min(bank.length + bankFallback.length, Math.ceil(n * 0.7));
+    let bankPointer = 0;
+    for (let picked = 0; picked < nCurated && out.length < n; picked++) {
+      const item = bankPointer < bank.length ? bank[bankPointer++] : bankFallback[picked - bank.length];
+      if (!item) break;
+      const options = shufflePractice([item.correct, item.wrongs[0], item.wrongs[1], item.wrongs[2]]);
+      _addSeen(_makeItemId(item));
       out.push({
         type: 'classification',
-        prompt: 'Which word does NOT belong with the others?',
-        hint: 'Three words share a category; one is from a different group',
+        prompt: 'Which word BELONGS with these three: <strong>' + item.anchors.join(', ') + '</strong>?',
+        hint: 'The three words share a specific trait or category. Find the one that shares the same trait.',
         options: options,
-        answer: item.odd,
-        category: item.category,
-        wordToTrack: _isVocab(item.odd) ? item.odd : null
+        answer: item.correct,
+        explain: item.explain,
+        difficulty: COGAT_CLASSIFICATION_DIFFICULTY[item.anchors[0]] || 2,
+        wordToTrack: _isVocab(item.correct) ? item.correct : null
       });
     }
-    // Fallback: DEGREES-based questions for remaining slots
+    // Fallback: DEGREES-based questions in the same BELONGS-with format
     let attempts = 0;
     while (out.length < n && attempts < n * 10) {
       attempts++;
       if (typeof DEGREES === 'undefined' || DEGREES.length < 4) break;
       const deg = DEGREES[Math.floor(Math.random() * DEGREES.length)];
-      const correct3 = [deg[0], deg[1], deg[2]];
-      let odd = null;
+      if (!deg[0] || !deg[1] || !deg[2] || !deg[3]) continue;
+      const anchors = shufflePractice([deg[0], deg[1], deg[2]]);
+      // Find a "correct" 4th word from a nearby degree with the SAME category tag
+      let correct4 = null;
+      const sameCategory = DEGREES.filter(d => d !== deg && d[3] === deg[3]);
+      if (sameCategory.length > 0) {
+        const alt = sameCategory[Math.floor(Math.random() * sameCategory.length)];
+        correct4 = alt[Math.floor(Math.random() * 3)];
+      }
+      if (!correct4 || anchors.includes(correct4)) continue;
+      // Distractors from DIFFERENT categories
+      const wrongs = [];
       let safety = 0;
-      while (!odd && safety < 50) {
+      while (wrongs.length < 3 && safety < 50) {
         safety++;
         const other = DEGREES[Math.floor(Math.random() * DEGREES.length)];
-        if (other[3] && deg[3] && other[3] !== deg[3]) {
+        if (other[3] !== deg[3]) {
           const cand = other[Math.floor(Math.random() * 3)];
-          if (!correct3.includes(cand)) odd = cand;
+          if (!anchors.includes(cand) && cand !== correct4 && !wrongs.includes(cand)) {
+            wrongs.push(cand);
+          }
         }
       }
-      if (!odd) continue;
-      const options = shufflePractice([...correct3, odd]);
+      if (wrongs.length < 3) continue;
+      const options = shufflePractice([correct4, ...wrongs]);
       out.push({
         type: 'classification',
-        prompt: 'Which word does NOT belong with the others?',
-        hint: 'Three words share a category; one is from a different group',
+        prompt: 'Which word BELONGS with these three: <strong>' + anchors.join(', ') + '</strong>?',
+        hint: 'The three words share a specific trait or category.',
         options: options,
-        answer: odd,
-        category: deg[3] || 'related',
-        wordToTrack: _isVocab(odd) ? odd : null
+        answer: correct4,
+        explain: 'The four words share the trait "' + (deg[3] || 'the same category') + '." Here: ' +
+          anchors.map(w => _wordWithDef(w)).join(', ') + ', and ' + _wordWithDef(correct4) +
+          ' all belong. The other options come from different categories.',
+        difficulty: 2,
+        wordToTrack: _isVocab(correct4) ? correct4 : null
       });
     }
   }
-  return out;
+  // Sort session easy→hard by difficulty (stable within same difficulty)
+  return out
+    .map((q, i) => ({ q: q, i: i }))
+    .sort((a, b) => ((a.q.difficulty || 2) - (b.q.difficulty || 2)) || (a.i - b.i))
+    .map(x => x.q);
 }
 
 function renderPracticeQuestion() {
@@ -6576,24 +6901,33 @@ function answerPractice(btn, choice) {
   // Feed the global accuracy/level counters (auto-syncs to backend via hookAnswerSync)
   try {
     if (typeof logAnswer === 'function') {
-      // Grade 4 CogAT ~ Level D. Completion carries its own level if known.
       logAnswer(isCorrect, q._completionLevel || 'D');
     }
   } catch(e) {}
+  // Track per-pattern-type performance (analogy rel or completion frame)
+  const tag = q.rel ? ('Analogy · ' + q.rel) : (q.frame ? ('Completion · ' + q.frame.replace('_', '-')) : null);
+  if (tag) {
+    if (!practiceState.byTag[tag]) practiceState.byTag[tag] = { correct: 0, total: 0 };
+    practiceState.byTag[tag].total++;
+    if (isCorrect) practiceState.byTag[tag].correct++;
+  }
   if (isCorrect) {
     practiceState.correct++;
     btn.classList.add('correct');
     document.getElementById('practice-feedback').className = 'practice-feedback correct';
-    document.getElementById('practice-feedback').innerHTML = '✓ Correct!' + (q.def ? ' <em>(' + q.answer + ' = ' + q.def + ')</em>' : '');
+    const why = q.explain ? '<div style="margin-top:6px;font-size:13px;color:#4a5568;line-height:1.5;">💡 ' + q.explain + '</div>' : (q.def ? ' <em>(' + q.answer + ' = ' + q.def + ')</em>' : '');
+    document.getElementById('practice-feedback').innerHTML = '✓ Correct!' + why;
   } else {
     btn.classList.add('wrong');
     document.getElementById('practice-opts').querySelectorAll('button').forEach(b => {
       if (b.getAttribute('data-opt') === q.answer) b.classList.add('correct');
     });
     document.getElementById('practice-feedback').className = 'practice-feedback wrong';
-    document.getElementById('practice-feedback').innerHTML = '✗ The answer was <strong>' + q.answer + '</strong>' + (q.def ? '. ' + q.def : '');
+    const why = q.explain
+      ? '<div style="margin-top:6px;font-size:13px;color:#4a5568;line-height:1.5;">💡 ' + q.explain + '</div>'
+      : (q.def ? '<div style="margin-top:6px;font-size:13px;color:#4a5568;">' + q.def + '</div>' : '');
+    document.getElementById('practice-feedback').innerHTML = '✗ The answer was <strong>' + q.answer + '</strong>' + why;
     practiceState.mistakes.push(q);
-    // Track weak word only if it's actually a vocab word (skip distractors like "green", "spoon")
     if (q.wordToTrack && typeof trackWeakWord === 'function') trackWeakWord(q.wordToTrack);
   }
   document.getElementById('practice-opts').querySelectorAll('button').forEach(b => b.disabled = true);
@@ -6629,16 +6963,90 @@ function showPracticeResults() {
   el.style.display = 'block';
   const pct = practiceState.questions.length > 0 ? Math.round(practiceState.correct / practiceState.questions.length * 100) : 0;
   const grade = pct >= 90 ? '🏆 Outstanding!' : pct >= 75 ? '🌟 Great job!' : pct >= 60 ? '👍 Good effort!' : '💪 Keep practicing!';
+
+  // Persist pattern-type stats across sessions
+  try {
+    const key = 'cogat-pattern-stats-v1';
+    const stored = JSON.parse(localStorage.getItem(key) || '{}');
+    Object.entries(practiceState.byTag || {}).forEach(([tag, s]) => {
+      if (!stored[tag]) stored[tag] = { correct: 0, total: 0 };
+      stored[tag].correct += s.correct;
+      stored[tag].total += s.total;
+    });
+    localStorage.setItem(key, JSON.stringify(stored));
+  } catch(e) {}
+
+  // Build pattern-type breakdown (weakest first)
+  const byTagEntries = Object.entries(practiceState.byTag || {});
+
+  // For simulation mode, also compute per-section (type) totals
+  let sectionHtml = '';
+  if (practiceMode === 'simulation') {
+    const sections = { analogy: { correct: 0, total: 0, label: '🔀 Verbal Analogies' },
+                       completion: { correct: 0, total: 0, label: '✏️ Sentence Completion' },
+                       classification: { correct: 0, total: 0, label: '🎯 Verbal Classification' } };
+    // Reconstruct per-section performance by walking questions + mistakes list
+    const mistakesSet = new Set(practiceState.mistakes.map(m => m.prompt));
+    practiceState.questions.forEach(q => {
+      const bucket = sections[q.type];
+      if (!bucket) return;
+      bucket.total++;
+      if (!mistakesSet.has(q.prompt)) bucket.correct++;
+    });
+    const rows = Object.values(sections).map(s => {
+      if (s.total === 0) return '';
+      const p = Math.round(s.correct / s.total * 100);
+      const barColor = p >= 75 ? 'var(--correct)' : p >= 50 ? 'var(--gold)' : 'var(--wrong)';
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+        '<div style="flex:1;font-weight:600;color:var(--teal-dark);">' + s.label + '</div>' +
+        '<div style="width:140px;background:#e5e0d5;height:10px;border-radius:5px;overflow:hidden;">' +
+          '<div style="width:' + p + '%;height:100%;background:' + barColor + ';"></div>' +
+        '</div>' +
+        '<div style="width:70px;text-align:right;font-weight:700;color:var(--teal-dark);">' + s.correct + '/' + s.total + '</div>' +
+      '</div>';
+    }).join('');
+    sectionHtml =
+      '<div style="margin-top:20px;text-align:left;border-top:1px solid var(--rule);padding-top:16px;">' +
+        '<div style="font-weight:700;color:var(--teal-dark);margin-bottom:12px;font-size:15px;">📝 CogAT Report Card · By Section</div>' +
+        rows +
+      '</div>';
+  }
+
+  let breakdownHtml = '';
+  if (byTagEntries.length > 0) {
+    const rows = byTagEntries
+      .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+      .map(([tag, s]) => {
+        const p = Math.round(s.correct / s.total * 100);
+        const barColor = p >= 75 ? 'var(--correct)' : p >= 50 ? 'var(--gold)' : 'var(--wrong)';
+        const flag = p < 50 ? ' <span style="color:var(--wrong);font-weight:600;">← focus area</span>' : '';
+        return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:13px;">' +
+          '<div style="flex:1;color:#4a5568;">' + tag + flag + '</div>' +
+          '<div style="width:120px;background:#e5e0d5;height:8px;border-radius:4px;overflow:hidden;">' +
+            '<div style="width:' + p + '%;height:100%;background:' + barColor + ';"></div>' +
+          '</div>' +
+          '<div style="width:56px;text-align:right;font-weight:600;color:var(--teal-dark);">' + s.correct + '/' + s.total + '</div>' +
+        '</div>';
+      }).join('');
+    breakdownHtml =
+      '<div style="margin-top:20px;text-align:left;border-top:1px solid var(--rule);padding-top:16px;">' +
+        '<div style="font-weight:600;color:var(--teal-dark);margin-bottom:10px;">By Pattern Type (weakest first):</div>' +
+        rows +
+      '</div>';
+  }
+
   el.innerHTML =
     '<div class="practice-card" style="text-align:center;">' +
       '<div style="font-size:48px;margin-bottom:8px;">' + (pct >= 75 ? '🎉' : '📊') + '</div>' +
       '<div class="section-title">' + grade + '</div>' +
       '<div style="font-size:42px;font-weight:700;color:var(--teal-dark);margin:14px 0;">' + practiceState.correct + ' / ' + practiceState.questions.length + '</div>' +
       '<div style="font-size:18px;color:var(--gold-dark);">' + pct + '% Correct</div>' +
+      sectionHtml +
+      breakdownHtml +
       (practiceState.mistakes.length > 0 ?
         '<div style="margin-top:20px;text-align:left;border-top:1px solid var(--rule);padding-top:16px;">' +
           '<div style="font-weight:600;color:var(--teal-dark);margin-bottom:10px;">Review your mistakes (' + practiceState.mistakes.length + '):</div>' +
-          practiceState.mistakes.map(m => '<div style="background:#fff5f0;border-left:3px solid var(--wrong);padding:8px 12px;margin-bottom:6px;border-radius:4px;font-size:13px;"><strong>' + m.answer + '</strong>' + (m.def ? ' — ' + m.def : '') + '</div>').join('') +
+          practiceState.mistakes.map(m => '<div style="background:#fff5f0;border-left:3px solid var(--wrong);padding:8px 12px;margin-bottom:6px;border-radius:4px;font-size:13px;"><strong>' + m.answer + '</strong>' + (m.explain ? ' — ' + m.explain : (m.def ? ' — ' + m.def : '')) + '</div>').join('') +
         '</div>' : '') +
       '<div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">' +
         (practiceState.mistakes.length > 0 ? '<button class="btn" onclick="redoMistakes()">↺ Redo Mistakes</button>' : '') +
@@ -7558,6 +7966,7 @@ function jumpToWord(word) {
       document.getElementById('practice-menu').style.display = 'flex';
       document.getElementById('practice-question').style.display = 'none';
       document.getElementById('practice-results').style.display = 'none';
+      if (typeof renderPracticeFocusCard === 'function') renderPracticeFocusCard();
     }
     if (v === 'roots') renderRoots();
     if (v === 'prefixes') renderPrefixes();
@@ -7873,6 +8282,53 @@ function renderProgress() {
         '<span class="mode-stats">' + s.score + '/' + s.total + ' &middot; <strong style="color:' + accColor + ';">' + acc + '%</strong> &middot; ' + dateStr + '</span>' +
       '</div>';
     });
+    html += '</div>';
+  }
+
+  // ===== CogAT Progress Section =====
+  let cogatStats = {};
+  try { cogatStats = JSON.parse(localStorage.getItem('cogat-pattern-stats-v1') || '{}'); } catch(e) {}
+  const cogatEntries = Object.entries(cogatStats);
+  if (cogatEntries.length > 0) {
+    html += '<div style="margin-top:28px;padding:16px;background:#fff;border:1px solid var(--rule);border-radius:12px;">';
+    html += '<h3 style="margin:0 0 12px;color:var(--teal-dark);">🎓 CogAT Practice Mastery</h3>';
+    html += '<div style="font-size:12px;color:#666;margin-bottom:14px;">Lifetime accuracy across pattern types — sorted weakest first. Data comes from every CogAT practice session.</div>';
+
+    const sorted = cogatEntries.sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total));
+    sorted.forEach(([tag, s]) => {
+      const p = Math.round(s.correct / s.total * 100);
+      const barColor = p >= 75 ? 'var(--correct)' : p >= 50 ? 'var(--gold)' : 'var(--wrong)';
+      const flag = p < 50 && s.total >= 3 ? ' <span style="color:var(--wrong);font-weight:600;font-size:11px;">FOCUS</span>' : '';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:13px;">' +
+        '<div style="flex:1;color:#4a5568;">' + tag + flag + '</div>' +
+        '<div style="width:140px;background:#e5e0d5;height:8px;border-radius:4px;overflow:hidden;">' +
+          '<div style="width:' + p + '%;height:100%;background:' + barColor + ';"></div>' +
+        '</div>' +
+        '<div style="width:72px;text-align:right;font-weight:600;color:var(--teal-dark);">' + s.correct + '/' + s.total + ' (' + p + '%)</div>' +
+      '</div>';
+    });
+
+    // Recent CogAT practice sessions (from local sessions log)
+    try {
+      const log = JSON.parse(localStorage.getItem('cogat-sessions-log') || '{"quiz":[],"practice":[]}');
+      const recent = (log.practice || []).slice(-8).reverse();
+      if (recent.length > 0) {
+        html += '<div style="margin-top:18px;font-weight:600;color:var(--teal-dark);margin-bottom:8px;">Recent CogAT Sessions</div>';
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse;">' +
+          '<thead><tr style="border-bottom:1px solid var(--rule);color:#666;text-align:left;"><th style="padding:6px 4px;">Date</th><th>Mode</th><th style="text-align:right;">Score</th><th style="text-align:right;">%</th></tr></thead><tbody>';
+        recent.forEach(r => {
+          const p = r.total > 0 ? Math.round(r.score / r.total * 100) : 0;
+          const dateStr = new Date(r.time || Date.now()).toLocaleDateString();
+          const accColor = p >= 75 ? 'var(--correct)' : p >= 50 ? 'var(--gold-dark)' : 'var(--wrong)';
+          html += '<tr style="border-bottom:1px solid #f0ebe0;"><td style="padding:5px 4px;">' + dateStr + '</td><td>' + (r.mode || '—') + '</td><td style="text-align:right;">' + r.score + '/' + r.total + '</td><td style="text-align:right;color:' + accColor + ';font-weight:600;">' + p + '%</td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+    } catch(e) {}
+
+    html += '<div style="margin-top:16px;text-align:right;">';
+    html += '<button class="btn ghost" style="font-size:12px;padding:6px 14px;" onclick="window.print()">🖨️ Print Report</button>';
+    html += '</div>';
     html += '</div>';
   }
 
@@ -11357,47 +11813,7 @@ function updateSidebarProfilePill() {
   } else {
     pill.style.display = 'none';
   }
-if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();																			 
 }
-
-// ==================== HEADER SIGN OUT ====================
-function isTeacherSignedIn() {
-  try { return !!sessionStorage.getItem(TEACHER_TOKEN_KEY); } catch(e) { return false; }
-}
-
-function updateHeaderSignOutBtn() {
-  const btn = document.getElementById('headerSignOutBtn');
-  if (!btn) return;
-  const studentIn = !!(CURRENT_STUDENT_ID && CURRENT_STUDENT_NAME);
-  const teacherIn = isTeacherSignedIn();
-  btn.style.display = (studentIn || teacherIn) ? 'inline-block' : 'none';
-  // Label reflects which session is active (teacher takes precedence if both somehow)
-  btn.textContent = teacherIn ? '⏻ Sign out (Teacher)' : '⏻ Sign out';
-}
-
-function headerSignOut() {
-  const teacherIn = isTeacherSignedIn();
-  const studentIn = !!(CURRENT_STUDENT_ID && CURRENT_STUDENT_NAME);
-  if (teacherIn) {
-    if (!confirm('Sign out of teacher account?')) return;
-    if (typeof teacherLogout === 'function') {
-      teacherLogout();
-    } else {
-      // Fallback if teacherLogout not loaded
-      try { sessionStorage.removeItem(TEACHER_TOKEN_KEY); } catch(e) {}
-      location.reload();
-    }
-    updateHeaderSignOutBtn();
-    return;
-  }
-  if (studentIn) {
-    // switchStudentProfile already has its own confirm dialog
-    switchStudentProfile();
-    updateHeaderSignOutBtn();
-    return;
-  }
-}
-
 
 function switchStudentProfile() {
   if (!confirm('Switch to a different profile? Any unsaved changes will sync first.')) return;
@@ -11800,7 +12216,6 @@ async function teacherLogin() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     try { sessionStorage.setItem(TEACHER_TOKEN_KEY, data.token); } catch(e) {}
-	if (typeof updateHeaderSignOutBtn === 'function') updateHeaderSignOutBtn();																		
     document.getElementById('teacherLoginOverlay').style.display = 'none';
     openTeacherDash();
   } catch(e) {
